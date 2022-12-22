@@ -1,0 +1,479 @@
+<script setup lang="ts">
+import OperationsService from "@/services/OperationsService";
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const alertNoDataForFilters = ref(false);
+const tableVisibility = ref(false);
+const alertTableEmpty = ref(false);
+const isLoading = ref(false);
+const operationPorPage = ref<number>(25);
+const actualPage = ref<number>(1);
+const operationPagedList = ref<OperationList[]>([]);
+const operationList = ref<OperationList[]>([]);
+const tableHeader = ref({
+  id: "Id",
+  data: "Data",
+  rating: "Rating",
+  esitoOperazione: "Esito",
+  target: "Target",
+  edit: "Modifica",
+  delete: "Elimina",
+  detail: "Dettaglio",
+});
+const filteredData = ref({
+  startDate: "",
+  endDate: "",
+  targetOrStopRadio: "",
+});
+
+interface OperationList {
+  id: number;
+  data: string;
+  result: string;
+  dynamic: string;
+  targetPoints: number;
+  stopPoints: number;
+}
+
+onMounted(async () => {
+  getOperations();
+  // //Get the button
+  // let mybutton = document.getElementById("btn-back-to-top");
+
+  // // When the user scrolls down 20px from the top of the document, show the button
+  // window.onscroll = function () {
+  //   scrollFunction();
+  // };
+
+  // function scrollFunction() {
+  //   if (
+  //     document.body.scrollTop > 20 ||
+  //     document.documentElement.scrollTop > 20
+  //   ) {
+  //     if (mybutton) mybutton.style.display = "block";
+  //   } else {
+  //     if (mybutton) mybutton.style.display = "none";
+  //   }
+  // }
+});
+
+function getOperations() {
+  OperationsService.getOperations().then((response) => {
+    isLoading.value = true;
+    //tableVisibility.value = false;
+    operationList.value = response.data;
+    //operationPagedList.value = operationList.value;
+    getPagesData(1);
+    setTimeout(() => {
+      isLoading.value = false;
+      if (response.data.length !== 0) {
+        tableVisibility.value = true;
+      } else {
+        tableVisibility.value = false;
+        alertTableEmpty.value = true;
+      }
+    }, 1000);
+  });
+}
+
+function deleteOperation(opId: number) {
+  OperationsService.deleteOperation(opId).then(() => {
+    const index = operationPagedList.value.findIndex(
+      (post) => post.id === opId
+    ); // find the post index
+    if (~index)
+      // if the post exists in array
+      operationPagedList.value.splice(index, 1); //delete the post
+    getOperations();
+  });
+}
+
+//FILTRI TABELLA
+function filterOperationsTable() {
+  let filterOperationResult = filteredData.value.targetOrStopRadio;
+  let startDate = localizeDate(filteredData.value.startDate);
+  let endDate = localizeDate(filteredData.value.endDate);
+  //Filtrare per tipo operazione target/stop
+  if (operationList.value) {
+    operationList.value = filterOperationResult
+      ? operationList.value.filter((el) => el.result === filterOperationResult)
+      : operationList.value;
+    operationList.value =
+      startDate && endDate
+        ? operationList.value.filter(
+            (el) =>
+              startDate <= new Date(localizeDate(el.data)) &&
+              new Date(localizeDate(el.data)) <= endDate
+          )
+        : operationList.value;
+    getPagesData(1);
+  }
+  console.log(operationList.value);
+  if (operationPagedList.value.length === 0) {
+    tableVisibility.value = false;
+    alertNoDataForFilters.value = true;
+  }
+}
+
+function cancelFilters() {
+  filteredData.value.startDate = "";
+  filteredData.value.endDate = "";
+  filteredData.value.targetOrStopRadio = "";
+  alertNoDataForFilters.value = false;
+  getOperations();
+}
+
+//UTILS DATA
+function localizeDate(date: string) {
+  if (!date || !date.includes("-")) return date;
+  const [yyyy, mm, dd] = date.split("-");
+  return new Date(`${mm}/${dd}/${yyyy}`);
+}
+
+function convertDate(dateString: string) {
+  var p = dateString.split(/\D/g);
+  return [p[2], p[1], p[0]].join("-");
+}
+
+//PAGINAZIONE TABELLA
+function totalPage() {
+  return Math.ceil(operationList.value.length / operationPorPage.value);
+}
+
+function getPagesData(pageNumber: number) {
+  actualPage.value = pageNumber;
+  operationPagedList.value = [];
+  let ini = pageNumber * operationPorPage.value - operationPorPage.value;
+  let fin = pageNumber * operationPorPage.value;
+  operationPagedList.value = operationList.value.slice(ini, fin);
+}
+
+function getPreviousPage() {
+  if (actualPage.value > 1) {
+    actualPage.value--;
+  }
+  getPagesData(actualPage.value);
+}
+
+function getNextPage() {
+  if (actualPage.value < totalPage()) {
+    actualPage.value++;
+  }
+  getPagesData(actualPage.value);
+}
+
+function isActive(pageNumber: number) {
+  return pageNumber == actualPage.value ? "active" : "";
+}
+
+//LABEL PUNTI TARGET E STOP
+function getTotalTargetPointsPorPage() {
+  let total = 0;
+  operationList.value.forEach((el) => {
+    total = total + el.targetPoints;
+  });
+  return total;
+}
+
+function getTotalStopPointsPorPage() {
+  let total = 0;
+  operationList.value.forEach((el) => {
+    total = total + el.stopPoints;
+  });
+  return total;
+}
+
+function getWinRate() {
+  let targetCount = 0;
+  //let stopCount = 0;
+  let winRate = 0;
+  operationList.value.forEach((el) => {
+    if (el.result == "Target") {
+      targetCount = targetCount + 1;
+    }
+  });
+  winRate = (targetCount / operationList.value.length) * 100;
+  return winRate.toFixed(2);
+}
+
+//NAVIGAZIONE PAGINA
+function goToAddOperation() {
+  router.push({
+    path: "/operation/add",
+  });
+}
+function goToDetails(opId: number) {
+  router.push({
+    name: "Detail",
+    params: {
+      id: opId,
+    },
+  });
+}
+function goToEdit(opId: number) {
+  router.push({
+    name: "Edit",
+    params: {
+      id: opId,
+    },
+  });
+}
+</script>
+
+<template>
+  <div class="card margin-row">
+    <h3 class="fw-bold card-title mt-4 mb-4 d-flex justify-content-center">
+      Sommario delle Operazioni
+    </h3>
+    <div class="card-body">
+      <h5
+        v-if="!isLoading && !alertTableEmpty"
+        class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+      >
+        Filtri
+      </h5>
+      <div
+        v-if="!isLoading && !alertTableEmpty"
+        class="row pb-5 align-items-center"
+      >
+        <div class="col-md-3 align-self-center">
+          <label for="startDate" class="fw-bold form-label">Da</label>
+          <input
+            type="date"
+            class="form-control"
+            id="startDate"
+            v-model="filteredData.startDate"
+          />
+        </div>
+        <div class="col-md-3 align-self-center">
+          <label for="endDate" class="fw-bold form-label">A</label>
+          <input
+            type="date"
+            class="form-control"
+            id="endDate"
+            v-model="filteredData.endDate"
+          />
+        </div>
+        <div class="col-md-2 align-self-end">
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="stopOrTargetRadio"
+              id="targetRadio"
+              v-model="filteredData.targetOrStopRadio"
+              :value="'Target'"
+            />
+            <label class="fw-bold form-check-label" for="targetRadio">
+              Target
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="stopOrTargetRadio"
+              id="stopRadio"
+              v-model="filteredData.targetOrStopRadio"
+              :value="'Stop'"
+            />
+            <label class="fw-bold form-check-label" for="stopRadio">
+              Stop
+            </label>
+          </div>
+        </div>
+        <div class="col-md-2 align-self-end">
+          <button
+            type="button"
+            class="fw-bold ms-3 btn btn-outline-success"
+            @click="filterOperationsTable()"
+          >
+            Filtra tabella
+          </button>
+        </div>
+        <div class="col-md-2 align-self-end">
+          <button
+            type="button"
+            class="fw-bold ms-3 btn btn-outline-danger"
+            @click="cancelFilters()"
+          >
+            Annulla filtri
+          </button>
+        </div>
+      </div>
+      <div
+        v-if="alertTableEmpty"
+        class="alert alert-danger d-flex align-items-center"
+        role="alert"
+      >
+        <svg
+          class="bi flex-shrink-0 me-2"
+          width="24"
+          height="24"
+          role="img"
+          aria-label="Danger:"
+        >
+          <use xlink:href="#exclamation-triangle-fill" />
+        </svg>
+        <div>Nessuna operazione presente nel sommario</div>
+      </div>
+      <table
+        v-if="tableVisibility && !isLoading"
+        class="table table-responsive"
+      >
+        <thead>
+          <tr>
+            <th scope="col">{{ tableHeader.id }}</th>
+            <th scope="col">{{ tableHeader.data }}</th>
+            <th scope="col">{{ tableHeader.rating }}</th>
+            <th scope="col">{{ tableHeader.esitoOperazione }}</th>
+            <!-- <th scope="col">{{ tableHeader.target }}</th> -->
+            <th scope="col">{{ tableHeader.edit }}</th>
+            <th scope="col">{{ tableHeader.delete }}</th>
+            <th scope="col">{{ tableHeader.detail }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="operation in operationPagedList" :key="operation.id">
+            <th scope="row">{{ operation.id }}</th>
+            <td>{{ convertDate(operation.data) }}</td>
+            <td>{{ operation.dynamic }}</td>
+            <td>{{ operation.result }}</td>
+            <!-- operation.target -->
+            <!-- <td>{{}}</td> -->
+            <td>
+              <button
+                type="button"
+                class="mx-1 btn btn-outline-primary"
+                @click="goToEdit(operation.id)"
+              >
+                <i class="bi bi-pencil-square"></i>
+              </button>
+            </td>
+            <td>
+              <button
+                type="button"
+                class="mx-1 btn btn-outline-danger"
+                @click="deleteOperation(operation.id)"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+            <td>
+              <button
+                type="button"
+                class="mx-1 btn btn-outline-success"
+                @click="goToDetails(operation.id)"
+              >
+                <i class="bi bi-arrow-right"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <nav
+        v-if="!isLoading && !alertTableEmpty && !alertNoDataForFilters"
+        aria-label="Page navigation example"
+      >
+        <ul class="pagination justify-content-center pt-3">
+          <li class="fw-bold page-item" @click="getPreviousPage()">
+            <button class="page-link">Previous</button>
+          </li>
+          <li
+            v-for="(page, i) in totalPage()"
+            :key="i"
+            @click="getPagesData(page)"
+            class="fw-bold page-item"
+            :class="isActive(page)"
+          >
+            <button class="page-link">{{ page }}</button>
+          </li>
+          <li class="fw-bold page-item" @click="getNextPage()">
+            <button class="page-link">Next</button>
+          </li>
+        </ul>
+      </nav>
+      <div class="d-flex justify-content-center">
+        <div
+          v-if="isLoading === true"
+          class="spinner-border text-primary"
+          style="width: 3rem; height: 3rem"
+        >
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      <div v-if="!alertTableEmpty && !alertNoDataForFilters" class="row pt-3">
+        <div class="col-md-4">
+          <!-- <label class="fw-bold">Punti: {{getTotalTargetPointsPorPage()}}</label> -->
+          <h5
+            v-if="!isLoading && !alertTableEmpty"
+            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+          >
+            Punti di target totali: {{ getTotalTargetPointsPorPage() }}
+          </h5>
+        </div>
+        <div class="col-md-4">
+          <h5
+            v-if="!isLoading && !alertTableEmpty"
+            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+          >
+            Punti di stop totali: {{ getTotalStopPointsPorPage() }}
+          </h5>
+        </div>
+        <div class="col-md-4">
+          <h5
+            v-if="!isLoading && !alertTableEmpty"
+            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+          >
+            Win rate: {{ getWinRate() }} %
+          </h5>
+        </div>
+      </div>
+      <div
+        v-if="alertNoDataForFilters"
+        class="alert alert-danger d-flex align-items-center"
+        role="alert"
+      >
+        <svg
+          class="bi flex-shrink-0 me-2"
+          width="24"
+          height="24"
+          role="img"
+          aria-label="Danger:"
+        >
+          <use xlink:href="#exclamation-triangle-fill" />
+        </svg>
+        <div>Dati non presenti per i filtri selezionati.</div>
+      </div>
+      <div class="row">
+        <div class="mt-0 pt-3 d-flex justify-content-center">
+          <button
+            v-if="!isLoading"
+            type="button"
+            class="fw-bold ms-3 btn btn-outline-primary"
+            @click="goToAddOperation"
+          >
+            Torna indietro
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<style scoped>
+.card-title-center {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+.margin-row {
+  margin-top: 125px !important;
+  /* margin-bottom: 75px !important; */
+  margin: 2rem auto;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+}
+</style>
