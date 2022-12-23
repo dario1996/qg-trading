@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const GET_OPERATION_LIST_API_BASE_URL = "https://qg-trading.netlify.app/api/operations";
+const GET_OPERATION_LIST_API_BASE_URL = "http://localhost:8080/api/operations";
 const ADD_OPERATION_API_BASE_URL = "http://localhost:8080/api/add-operation";
 const DELETE_OPERATION_API_BASE_URL =
   "http://localhost:8080/api/delete-operation";
