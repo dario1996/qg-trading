@@ -103,6 +103,7 @@ function checkFieldEmpty() {
     // } else {
 
     // }
+    
     const saveData = {
       data: operationData.value,
       result: targetOrStopRadio.value === "1" ? "Target" : "Stop",
@@ -111,7 +112,7 @@ function checkFieldEmpty() {
           ? "Rating 4"
           : dynamicRating.value === "1"
           ? "Rating 5"
-          : "Retest livello",
+          : "Rating maggiore di 5",
       targetPoints: targetOrStopRadio.value === "1" ? targetPonits.value : 0,
       stopPoints: targetOrStopRadio.value === "0" ? stopPonits.value : 0,
       comments: comments.value,
@@ -195,7 +196,7 @@ function goToSummary() {
                 v-model="dynamicRating"
               />
               <label class="fw-bold form-check-label" for="dynamicOneRadio">
-                Dinamica 1 (Rating 4)
+                Rating 4
               </label>
             </div>
             <div class="form-check">
@@ -208,7 +209,7 @@ function goToSummary() {
                 v-model="dynamicRating"
               />
               <label class="fw-bold form-check-label" for="dynamicTwoRadio">
-                Dinamica 2 (Rating 5)
+                Rating 5
               </label>
             </div>
             <div class="form-check">
@@ -221,7 +222,7 @@ function goToSummary() {
                 v-model="dynamicRating"
               />
               <label class="fw-bold form-check-label" for="dynamicThreeRadio">
-                Dinamica 3 (Retest livello)
+                Rating maggiore di 5
               </label>
             </div>
           </div>
