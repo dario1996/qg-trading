@@ -6,6 +6,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const targetOrStopRadio = ref("");
 const operationData = ref("");
+const operationTime = ref("");
 const dynamicRating = ref("");
 const targetPonits = ref<number>();
 const stopPonits = ref<number>();
@@ -62,6 +63,7 @@ function checkFieldEmpty() {
     // }
     const saveData = {
       data: operationData.value,
+      time: operationTime.value,
       result: targetOrStopRadio.value === "1" ? "Target" : "Stop",
       dynamic:
         dynamicRating.value === "0"
@@ -87,6 +89,7 @@ function checkFieldEmpty() {
 function emptyField() {
   targetOrStopRadio.value = "";
   operationData.value = "";
+  operationTime.value = "";
   dynamicRating.value = "";
   targetPonits.value = undefined;
   stopPonits.value = undefined;
@@ -105,7 +108,7 @@ function goToSummary() {
     <div class="card-body">
       <h3 class="fw-bold card-title card-title-center">Inserisci Operazione</h3>
       <form @submit.prevent="() => {}">
-        <div class="row margin-row">
+        <div class="row pt-5">
           <div class="col-md-6">
             <label for="inputData" class="fw-bold form-label">Data</label>
             <input
@@ -115,8 +118,17 @@ function goToSummary() {
               v-model="operationData"
             />
           </div>
+          <div class="col-md-6">
+            <label for="inputTime" class="fw-bold form-label">Orario</label>
+            <input
+              type="time"
+              class="form-control"
+              id="inputTime"
+              v-model="operationTime"
+            />
+          </div>
         </div>
-        <div class="row margin-row">
+        <div class="row pt-5">
           <div class="col-md-6">
             <div class="form-check">
               <input
@@ -187,7 +199,7 @@ function goToSummary() {
             </div>
           </div>
         </div>
-        <div class="row margin-row">
+        <div class="row pt-5">
           <div class="col-md-6">
             <label for="targetPoints" class="fw-bold form-label"
               >Punti di target</label
@@ -274,7 +286,7 @@ function goToSummary() {
             <div>Tutti i campi sono obbligatori!</div>
           </div>
         </div>
-        <div class="row pt-3">
+        <div class="row pt-5">
           <div class="mt-0 pt-3 d-flex justify-content-center">
             <button
               type="button"
@@ -301,9 +313,9 @@ function goToSummary() {
 .card-title-center {
   text-align: center;
 }
-.margin-row {
+/* .margin-row {
   margin-top: 20px;
-}
+} */
 .asd {
   margin-top: 125px !important;
   /* margin-bottom: 75px !important; */

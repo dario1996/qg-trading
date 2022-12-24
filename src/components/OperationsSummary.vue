@@ -14,9 +14,11 @@ const operationPagedList = ref<OperationList[]>([]);
 const operationList = ref<OperationList[]>([]);
 const tableHeader = ref({
   id: "Id",
-  data: "Data",
+  data: "Data e Ora",
   rating: "Rating",
   esitoOperazione: "Esito",
+  puntiDiTarget: "Punti di Target",
+  puntiDiStop: "Punti di Stop",
   target: "Target",
   edit: "Modifica",
   delete: "Elimina",
@@ -31,6 +33,7 @@ const filteredData = ref({
 interface OperationList {
   id: number;
   data: string;
+  time: string;
   result: string;
   dynamic: string;
   targetPoints: number;
@@ -321,14 +324,22 @@ function goToEdit(opId: number) {
       </div>
       <table
         v-if="tableVisibility && !isLoading"
-        class="table table-responsive"
+        class="table table-responsive align-middle"
       >
         <thead>
           <tr>
             <th scope="col">{{ tableHeader.id }}</th>
             <th scope="col">{{ tableHeader.data }}</th>
             <th scope="col">{{ tableHeader.rating }}</th>
-            <th scope="col">{{ tableHeader.esitoOperazione }}</th>
+            <th class="text-center" scope="col">
+              {{ tableHeader.esitoOperazione }}
+            </th>
+            <th class="text-center" scope="col">
+              {{ tableHeader.puntiDiTarget }}
+            </th>
+            <th class="text-center" scope="col">
+              {{ tableHeader.puntiDiStop }}
+            </th>
             <!-- <th scope="col">{{ tableHeader.target }}</th> -->
             <th scope="col">{{ tableHeader.edit }}</th>
             <th scope="col">{{ tableHeader.delete }}</th>
@@ -338,9 +349,21 @@ function goToEdit(opId: number) {
         <tbody>
           <tr v-for="operation in operationPagedList" :key="operation.id">
             <th scope="row">{{ operation.id }}</th>
-            <td>{{ convertDate(operation.data) }}</td>
+            <td>{{ convertDate(operation.data) + " - " + operation.time }}</td>
             <td>{{ operation.dynamic }}</td>
-            <td>{{ operation.result }}</td>
+            <!-- <td>{{ operation.result }}</td> -->
+            <td class="text-center">
+              <i
+                v-if="operation.result == 'Target'"
+                class="bi bi-check-circle fs-3 text-success"
+              ></i>
+              <i
+                v-if="operation.result == 'Stop'"
+                class="bi bi-x-circle fs-3 text-danger"
+              ></i>
+            </td>
+            <td class="text-center">{{ operation.targetPoints }}</td>
+            <td class="text-center">{{ operation.stopPoints }}</td>
             <!-- operation.target -->
             <!-- <td>{{}}</td> -->
             <td>
