@@ -10,6 +10,7 @@ const operationTime = ref("");
 const dynamicRating = ref("");
 const targetPonits = ref<number>();
 const stopPonits = ref<number>();
+const riskReturn = ref<number>(0);
 const alertSaveSucces = ref(false);
 const alertEmptyField = ref(false);
 const comments = ref("");
@@ -26,29 +27,22 @@ function saveOperation() {
   }
 }
 
+function getRiskReturn() {
+  if (targetPonits.value && stopPonits.value) {
+    riskReturn.value = targetPonits.value / stopPonits.value;
+  }
+  return riskReturn.value.toFixed(1);
+}
+
 function checkFieldEmpty() {
   if (
-    targetOrStopRadio.value == "1" &&
-    (operationData.value == "" ||
-      dynamicRating.value == "" ||
-      targetPonits.value == null)
-  ) {
-    alertEmptyField.value = true;
-    alertSaveSucces.value = false;
-  } else if (
-    targetOrStopRadio.value == "0" &&
-    (operationData.value == "" ||
-      dynamicRating.value == "" ||
-      stopPonits.value == null)
-  ) {
-    alertEmptyField.value = true;
-    alertSaveSucces.value = false;
-  } else if (
-    targetOrStopRadio.value == "" &&
-    (operationData.value == "" ||
-      dynamicRating.value == "" ||
-      targetPonits.value == null ||
-      stopPonits.value == null)
+    targetOrStopRadio.value == "" ||
+    operationData.value == "" ||
+    dynamicRating.value == "" ||
+    operationTime.value == "" ||
+    targetPonits.value == null ||
+    stopPonits.value == null ||
+    riskReturn.value == null
   ) {
     alertEmptyField.value = true;
     alertSaveSucces.value = false;
@@ -71,16 +65,18 @@ function checkFieldEmpty() {
           : dynamicRating.value === "1"
           ? "Rating 5"
           : "Rating maggiore di 5",
-      targetPoints: targetOrStopRadio.value === "1" ? targetPonits.value : 0,
-      stopPoints: targetOrStopRadio.value === "0" ? stopPonits.value : 0,
+      targetPoints: targetPonits.value,
+      stopPoints: stopPonits.value,
       comments: comments.value,
+      riskReturn:
+        parseFloat(getRiskReturn()) === null ? 0 : parseFloat(getRiskReturn()),
     };
-    if(targetOrStopRadio.value === "1" && stopPonits.value != 0) {
-      stopPonits.value = 0
-    }
-    if(targetOrStopRadio.value === "0" && targetPonits.value != 0) {
-      targetPonits.value = 0
-    }
+    // if(targetOrStopRadio.value === "1" && stopPonits.value != 0) {
+    //   stopPonits.value = 0
+    // }
+    // if(targetOrStopRadio.value === "0" && targetPonits.value != 0) {
+    //   targetPonits.value = 0
+    // }
     OperationsService.addOperation(saveData);
     console.log(saveData);
   }
@@ -210,7 +206,6 @@ function goToSummary() {
               id="targetPoints"
               placeholder="Inserisci i punti di target"
               v-model="targetPonits"
-              :disabled="targetOrStopRadio === '0' ? true : false"
               min="0"
             />
           </div>
@@ -224,7 +219,6 @@ function goToSummary() {
               id="stopPoints"
               placeholder="Inserisci i punti di stop"
               v-model="stopPonits"
-              :disabled="targetOrStopRadio === '1' ? true : false"
               min="0"
             />
           </div>

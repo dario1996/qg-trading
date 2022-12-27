@@ -19,6 +19,7 @@ const tableHeader = ref({
   esitoOperazione: "Esito",
   puntiDiTarget: "Punti di Target",
   puntiDiStop: "Punti di Stop",
+  rischioRendimento: "Rischio/Rendimento",
   target: "Target",
   edit: "Modifica",
   delete: "Elimina",
@@ -38,6 +39,7 @@ interface OperationList {
   dynamic: string;
   targetPoints: number;
   stopPoints: number;
+  riskReturn: number;
 }
 
 onMounted(async () => {
@@ -306,6 +308,117 @@ function goToEdit(opId: number) {
           </button>
         </div>
       </div>
+      <!-- <h5
+        v-if="!isLoading && !alertTableEmpty"
+        class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+      >
+        Filtri punti di target/stop e rischio rendimento
+      </h5> -->
+      <div
+        v-if="!isLoading && !alertTableEmpty"
+        class="row pb-5 align-items-center"
+      >
+        <div class="col-md-2 align-self-center">
+          <label for="startDate" class="fw-bold form-label">P. Target Da</label>
+          <input
+            type="number"
+            class="form-control"
+            id="startDate"
+            v-model="filteredData.startDate"
+          />
+        </div>
+        <div class="col-md-2 align-self-center">
+          <label for="endDate" class="fw-bold form-label">P. Target A</label>
+          <input
+            type="number"
+            class="form-control"
+            id="endDate"
+            v-model="filteredData.endDate"
+          />
+        </div>
+        <div class="col-md-2 align-self-center">
+          <label for="startDate" class="fw-bold form-label">P. Stop Da</label>
+          <input
+            type="number"
+            class="form-control"
+            id="startDate"
+            v-model="filteredData.startDate"
+          />
+        </div>
+        <div class="col-md-2 align-self-center">
+          <label for="endDate" class="fw-bold form-label">P. Stop A</label>
+          <input
+            type="number"
+            class="form-control"
+            id="endDate"
+            v-model="filteredData.endDate"
+          />
+        </div>
+        <div class="col-md-2 align-self-center">
+          <label for="startDate" class="fw-bold form-label">Rischio/Rend. Da</label>
+          <input
+            type="number"
+            class="form-control"
+            id="startDate"
+            v-model="filteredData.startDate"
+          />
+        </div>
+        <div class="col-md-2 align-self-center">
+          <label for="endDate" class="fw-bold form-label">Rischio/Rend. A</label>
+          <input
+            type="number"
+            class="form-control"
+            id="endDate"
+            v-model="filteredData.endDate"
+          />
+        </div>
+        <!-- <div class="col-md-2 align-self-end">
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="stopOrTargetRadio"
+              id="targetRadio"
+              v-model="filteredData.targetOrStopRadio"
+              :value="'Target'"
+            />
+            <label class="fw-bold form-check-label" for="targetRadio">
+              Target
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="stopOrTargetRadio"
+              id="stopRadio"
+              v-model="filteredData.targetOrStopRadio"
+              :value="'Stop'"
+            />
+            <label class="fw-bold form-check-label" for="stopRadio">
+              Stop
+            </label>
+          </div>
+        </div> -->
+        <!-- <div class="col-md-2 align-self-end">
+          <button
+            type="button"
+            class="fw-bold ms-3 btn btn-outline-success"
+            @click="filterOperationsTable()"
+          >
+            Filtra tabella
+          </button>
+        </div>
+        <div class="col-md-2 align-self-end">
+          <button
+            type="button"
+            class="fw-bold ms-3 btn btn-outline-danger"
+            @click="cancelFilters()"
+          >
+            Annulla filtri
+          </button>
+        </div> -->
+      </div>
       <div
         v-if="alertTableEmpty"
         class="alert alert-danger d-flex align-items-center"
@@ -340,6 +453,9 @@ function goToEdit(opId: number) {
             <th class="text-center" scope="col">
               {{ tableHeader.puntiDiStop }}
             </th>
+            <th class="text-center" scope="col">
+              {{ tableHeader.rischioRendimento }}
+            </th>
             <!-- <th scope="col">{{ tableHeader.target }}</th> -->
             <th scope="col">{{ tableHeader.edit }}</th>
             <th scope="col">{{ tableHeader.delete }}</th>
@@ -364,6 +480,7 @@ function goToEdit(opId: number) {
             </td>
             <td class="text-center">{{ operation.targetPoints }}</td>
             <td class="text-center">{{ operation.stopPoints }}</td>
+            <td class="text-center">{{ operation.riskReturn }}</td>
             <!-- operation.target -->
             <!-- <td>{{}}</td> -->
             <td>
