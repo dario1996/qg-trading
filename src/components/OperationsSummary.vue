@@ -29,6 +29,8 @@ const filteredData = ref({
   startDate: "",
   endDate: "",
   targetOrStopRadio: "",
+  startRiskResult: 0,
+  endRiskResult: 0,
 });
 
 interface OperationList {
@@ -44,24 +46,6 @@ interface OperationList {
 
 onMounted(async () => {
   getOperations();
-  // //Get the button
-  // let mybutton = document.getElementById("btn-back-to-top");
-
-  // // When the user scrolls down 20px from the top of the document, show the button
-  // window.onscroll = function () {
-  //   scrollFunction();
-  // };
-
-  // function scrollFunction() {
-  //   if (
-  //     document.body.scrollTop > 20 ||
-  //     document.documentElement.scrollTop > 20
-  //   ) {
-  //     if (mybutton) mybutton.style.display = "block";
-  //   } else {
-  //     if (mybutton) mybutton.style.display = "none";
-  //   }
-  // }
 });
 
 function getOperations() {
@@ -98,9 +82,10 @@ function deleteOperation(opId: number) {
 //FILTRI TABELLA
 function filterOperationsTable() {
   let filterOperationResult = filteredData.value.targetOrStopRadio;
+  let startRiskResult = filteredData.value.startRiskResult;
+  let endRiskResult = filteredData.value.endRiskResult;
   let startDate = localizeDate(filteredData.value.startDate);
   let endDate = localizeDate(filteredData.value.endDate);
-  //Filtrare per tipo operazione target/stop
   if (operationList.value) {
     operationList.value = filterOperationResult
       ? operationList.value.filter((el) => el.result === filterOperationResult)
@@ -113,6 +98,13 @@ function filterOperationsTable() {
               new Date(localizeDate(el.data)) <= endDate
           )
         : operationList.value;
+    operationList.value =
+      startRiskResult && endRiskResult
+        ? operationList.value.filter(
+            (el) =>
+              startRiskResult <= el.riskReturn && el.riskReturn <= endRiskResult
+          )
+        : operationList.value;
     getPagesData(1);
   }
   console.log(operationList.value);
@@ -122,10 +114,13 @@ function filterOperationsTable() {
   }
 }
 
+//CANCELLA FILTRI
 function cancelFilters() {
   filteredData.value.startDate = "";
   filteredData.value.endDate = "";
   filteredData.value.targetOrStopRadio = "";
+  filteredData.value.startRiskResult = 0;
+  filteredData.value.endRiskResult = 0;
   alertNoDataForFilters.value = false;
   getOperations();
 }
@@ -173,7 +168,7 @@ function isActive(pageNumber: number) {
   return pageNumber == actualPage.value ? "active" : "";
 }
 
-//LABEL PUNTI TARGET E STOP
+//LABEL PUNTI TARGET, STOP E WIN RATE
 function getTotalTargetPointsPorPage() {
   let total = 0;
   operationList.value.forEach((el) => {
@@ -355,21 +350,25 @@ function goToEdit(opId: number) {
           />
         </div>
         <div class="col-md-2 align-self-center">
-          <label for="startDate" class="fw-bold form-label">Rischio/Rend. Da</label>
+          <label for="startDate" class="fw-bold form-label"
+            >Rischio/Rend. Da</label
+          >
           <input
             type="number"
             class="form-control"
             id="startDate"
-            v-model="filteredData.startDate"
+            v-model="filteredData.startRiskResult"
           />
         </div>
         <div class="col-md-2 align-self-center">
-          <label for="endDate" class="fw-bold form-label">Rischio/Rend. A</label>
+          <label for="endDate" class="fw-bold form-label"
+            >Rischio/Rend. A</label
+          >
           <input
             type="number"
             class="form-control"
             id="endDate"
-            v-model="filteredData.endDate"
+            v-model="filteredData.endRiskResult"
           />
         </div>
         <!-- <div class="col-md-2 align-self-end">

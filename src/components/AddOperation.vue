@@ -38,11 +38,11 @@ function checkFieldEmpty() {
   if (
     targetOrStopRadio.value == "" ||
     operationData.value == "" ||
+    operationTime.value == "" ||
     dynamicRating.value == "" ||
     operationTime.value == "" ||
     targetPonits.value == null ||
-    stopPonits.value == null ||
-    riskReturn.value == null
+    stopPonits.value == null
   ) {
     alertEmptyField.value = true;
     alertSaveSucces.value = false;
