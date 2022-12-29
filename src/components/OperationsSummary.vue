@@ -98,13 +98,21 @@ function filterOperationsTable() {
               new Date(localizeDate(el.data)) <= endDate
           )
         : operationList.value;
-    operationList.value =
-      startRiskResult && endRiskResult
-        ? operationList.value.filter(
-            (el) =>
-              startRiskResult <= el.riskReturn && el.riskReturn <= endRiskResult
-          )
-        : operationList.value;
+    if (startRiskResult != 0 && endRiskResult != 0) {
+      operationList.value = operationList.value.filter(
+        (el) =>
+          startRiskResult <= el.riskReturn && el.riskReturn <= endRiskResult
+      );
+    } else {
+      operationList.value
+    }
+    // operationList.value =
+    //   startRiskResult && endRiskResult
+    //     ? operationList.value.filter(
+    //         (el) =>
+    //           startRiskResult <= el.riskReturn && el.riskReturn <= endRiskResult
+    //       )
+    //     : operationList.value;
     getPagesData(1);
   }
   console.log(operationList.value);
