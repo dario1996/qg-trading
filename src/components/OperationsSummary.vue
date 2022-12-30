@@ -29,6 +29,11 @@ const filteredData = ref({
   startDate: "",
   endDate: "",
   targetOrStopRadio: "",
+  dynamicRadio: "",
+  startTargetPoints: 0,
+  endTargetPoints: 0,
+  startStopPoints: 0,
+  endStopPoints: 0,
   startRiskResult: 0,
   endRiskResult: 0,
 });
@@ -82,8 +87,13 @@ function deleteOperation(opId: number) {
 //FILTRI TABELLA
 function filterOperationsTable() {
   let filterOperationResult = filteredData.value.targetOrStopRadio;
+  let filterOperationDynamic = filteredData.value.dynamicRadio;
   let startRiskResult = filteredData.value.startRiskResult;
   let endRiskResult = filteredData.value.endRiskResult;
+  let startTargetPoints = filteredData.value.startTargetPoints;
+  let endTargetPoints = filteredData.value.endTargetPoints;
+  let startStopPoints = filteredData.value.startStopPoints;
+  let endStopPoints = filteredData.value.endStopPoints;
   let startDate = localizeDate(filteredData.value.startDate);
   let endDate = localizeDate(filteredData.value.endDate);
   if (operationList.value) {
@@ -104,8 +114,27 @@ function filterOperationsTable() {
           startRiskResult <= el.riskReturn && el.riskReturn <= endRiskResult
       );
     } else {
-      operationList.value
+      operationList.value;
     }
+    if (endTargetPoints != 0) {
+      operationList.value = operationList.value.filter(
+        (el) =>
+        startTargetPoints <= el.targetPoints && el.targetPoints <= endTargetPoints
+      );
+    } else {
+      operationList.value;
+    }
+    if (endStopPoints != 0) {
+      operationList.value = operationList.value.filter(
+        (el) =>
+        startStopPoints <= el.stopPoints && el.stopPoints <= endStopPoints
+      );
+    } else {
+      operationList.value;
+    }
+    operationList.value = filterOperationDynamic
+      ? operationList.value.filter((el) => el.dynamic === filterOperationDynamic)
+      : operationList.value;
     // operationList.value =
     //   startRiskResult && endRiskResult
     //     ? operationList.value.filter(
@@ -176,7 +205,7 @@ function isActive(pageNumber: number) {
   return pageNumber == actualPage.value ? "active" : "";
 }
 
-//LABEL PUNTI TARGET, STOP E WIN RATE
+//LABEL PUNTI TARGET, STOP, WIN RATE E RISCHIO RENDIMENTO MEDIO 
 function getTotalTargetPointsPorPage() {
   let total = 0;
   operationList.value.forEach((el) => {
@@ -204,6 +233,17 @@ function getWinRate() {
   });
   winRate = (targetCount / operationList.value.length) * 100;
   return winRate.toFixed(2);
+}
+
+function getMediumRiskReturn() {
+  let riskReturnSum = 0;
+  let mediumRiskReturn = 0;
+
+  operationList.value.forEach((el) => {
+    riskReturnSum = riskReturnSum + el.riskReturn;
+  });
+  mediumRiskReturn = riskReturnSum / operationList.value.length;
+  return mediumRiskReturn.toFixed(1);
 }
 
 //NAVIGAZIONE PAGINA
@@ -246,7 +286,7 @@ function goToEdit(opId: number) {
         v-if="!isLoading && !alertTableEmpty"
         class="row pb-5 align-items-center"
       >
-        <div class="col-md-3 align-self-center">
+        <div class="col-md-2 align-self-center">
           <label for="startDate" class="fw-bold form-label">Da</label>
           <input
             type="date"
@@ -255,7 +295,7 @@ function goToEdit(opId: number) {
             v-model="filteredData.startDate"
           />
         </div>
-        <div class="col-md-3 align-self-center">
+        <div class="col-md-2 align-self-center">
           <label for="endDate" class="fw-bold form-label">A</label>
           <input
             type="date"
@@ -264,7 +304,7 @@ function goToEdit(opId: number) {
             v-model="filteredData.endDate"
           />
         </div>
-        <div class="col-md-2 align-self-end">
+        <div class="col-md-2 d-flex align-self-end justify-content-end">
           <div class="form-check form-check-inline">
             <input
               class="form-check-input"
@@ -292,7 +332,48 @@ function goToEdit(opId: number) {
             </label>
           </div>
         </div>
-        <div class="col-md-2 align-self-end">
+        <div class="col-md-4 d-flex align-self-end justify-content-center">
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="dynamicRadio"
+              id="rating4Radio"
+              v-model="filteredData.dynamicRadio"
+              :value="'Rating 4'"
+            />
+            <label class="fw-bold form-check-label" for="rating4Radio">
+              Rating 4
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="dynamicRadio"
+              id="rating5Radio"
+              v-model="filteredData.dynamicRadio"
+              :value="'Rating 5'"
+            />
+            <label class="fw-bold form-check-label" for="rating5Radio">
+              Rating 5
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="dynamicRadio"
+              id="ratingMaggioreDi5Radio"
+              v-model="filteredData.dynamicRadio"
+              :value="'Rating maggiore di 5'"
+            />
+            <label class="fw-bold form-check-label" for="ratingMaggioreDi5Radio">
+              Rating maggiore di 5
+            </label>
+          </div>
+        </div>
+        <div class="col-md-1 align-self-end">
           <button
             type="button"
             class="fw-bold ms-3 btn btn-outline-success"
@@ -301,7 +382,7 @@ function goToEdit(opId: number) {
             Filtra tabella
           </button>
         </div>
-        <div class="col-md-2 align-self-end">
+        <div class="col-md-1 align-self-end">
           <button
             type="button"
             class="fw-bold ms-3 btn btn-outline-danger"
@@ -321,16 +402,16 @@ function goToEdit(opId: number) {
         v-if="!isLoading && !alertTableEmpty"
         class="row pb-5 align-items-center"
       >
-        <div class="col-md-2 align-self-center">
-          <label for="startDate" class="fw-bold form-label">P. Target Da</label>
+        <div class="col-md-4 align-self-center">
+          <label for="startDate" class="fw-bold form-label">Punti Target Da</label>
           <input
             type="number"
             class="form-control"
             id="startDate"
-            v-model="filteredData.startDate"
+            v-model="filteredData.startTargetPoints"
           />
         </div>
-        <div class="col-md-2 align-self-center">
+        <!-- <div class="col-md-2 align-self-center">
           <label for="endDate" class="fw-bold form-label">P. Target A</label>
           <input
             type="number"
@@ -338,17 +419,17 @@ function goToEdit(opId: number) {
             id="endDate"
             v-model="filteredData.endDate"
           />
-        </div>
-        <div class="col-md-2 align-self-center">
-          <label for="startDate" class="fw-bold form-label">P. Stop Da</label>
+        </div> -->
+        <div class="col-md-4 align-self-center">
+          <label for="startDate" class="fw-bold form-label">Punti Stop Da</label>
           <input
             type="number"
             class="form-control"
             id="startDate"
-            v-model="filteredData.startDate"
+            v-model="filteredData.startStopPoints"
           />
         </div>
-        <div class="col-md-2 align-self-center">
+        <!-- <div class="col-md-2 align-self-center">
           <label for="endDate" class="fw-bold form-label">P. Stop A</label>
           <input
             type="number"
@@ -356,8 +437,117 @@ function goToEdit(opId: number) {
             id="endDate"
             v-model="filteredData.endDate"
           />
+        </div> -->
+        <div class="col-md-4 align-self-center">
+          <label for="startDate" class="fw-bold form-label"
+            >R/R Da</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            id="startDate"
+            v-model="filteredData.startRiskResult"
+          />
         </div>
-        <div class="col-md-2 align-self-center">
+        <!-- <div class="col-md-2 align-self-center">
+          <label for="endDate" class="fw-bold form-label"
+            >Rischio/Rend. A</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            id="endDate"
+            v-model="filteredData.endRiskResult"
+          />
+        </div> -->
+        <!-- <div class="col-md-2 align-self-end">
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="stopOrTargetRadio"
+              id="targetRadio"
+              v-model="filteredData.targetOrStopRadio"
+              :value="'Target'"
+            />
+            <label class="fw-bold form-check-label" for="targetRadio">
+              Target
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="stopOrTargetRadio"
+              id="stopRadio"
+              v-model="filteredData.targetOrStopRadio"
+              :value="'Stop'"
+            />
+            <label class="fw-bold form-check-label" for="stopRadio">
+              Stop
+            </label>
+          </div>
+        </div> -->
+        <!-- <div class="col-md-2 align-self-end">
+          <button
+            type="button"
+            class="fw-bold ms-3 btn btn-outline-success"
+            @click="filterOperationsTable()"
+          >
+            Filtra tabella
+          </button>
+        </div>
+        <div class="col-md-2 align-self-end">
+          <button
+            type="button"
+            class="fw-bold ms-3 btn btn-outline-danger"
+            @click="cancelFilters()"
+          >
+            Annulla filtri
+          </button>
+        </div> -->
+      </div>
+      <div
+        v-if="!isLoading && !alertTableEmpty"
+        class="row pb-5 align-items-center"
+      >
+        <!-- <div class="col-md-2 align-self-center">
+          <label for="startDate" class="fw-bold form-label">P. Target Da</label>
+          <input
+            type="number"
+            class="form-control"
+            id="startDate"
+            v-model="filteredData.startDate"
+          />
+        </div> -->
+        <div class="col-md-4 align-self-center">
+          <label for="endDate" class="fw-bold form-label">Punti Target A</label>
+          <input
+            type="number"
+            class="form-control"
+            id="endDate"
+            v-model="filteredData.endTargetPoints"
+          />
+        </div>
+        <!-- <div class="col-md-2 align-self-center">
+          <label for="startDate" class="fw-bold form-label">P. Stop Da</label>
+          <input
+            type="number"
+            class="form-control"
+            id="startDate"
+            v-model="filteredData.startDate"
+          />
+        </div> -->
+        <div class="col-md-4 align-self-center">
+          <label for="endDate" class="fw-bold form-label">Punti Stop A</label>
+          <input
+            type="number"
+            class="form-control"
+            id="endDate"
+            v-model="filteredData.endStopPoints"
+          />
+        </div>
+        <!-- <div class="col-md-2 align-self-center">
           <label for="startDate" class="fw-bold form-label"
             >Rischio/Rend. Da</label
           >
@@ -367,10 +557,10 @@ function goToEdit(opId: number) {
             id="startDate"
             v-model="filteredData.startRiskResult"
           />
-        </div>
-        <div class="col-md-2 align-self-center">
+        </div> -->
+        <div class="col-md-4 align-self-center">
           <label for="endDate" class="fw-bold form-label"
-            >Rischio/Rend. A</label
+            >R/R A</label
           >
           <input
             type="number"
@@ -478,11 +668,11 @@ function goToEdit(opId: number) {
             <td class="text-center">
               <i
                 v-if="operation.result == 'Target'"
-                class="bi bi-check-circle fs-3 text-success"
+                class="bi bi-check-circle-fill fs-3 text-success"
               ></i>
               <i
                 v-if="operation.result == 'Stop'"
-                class="bi bi-x-circle fs-3 text-danger"
+                class="bi bi-x-circle-fill fs-3 text-danger"
               ></i>
             </td>
             <td class="text-center">{{ operation.targetPoints }}</td>
@@ -552,7 +742,7 @@ function goToEdit(opId: number) {
         </div>
       </div>
       <div v-if="!alertTableEmpty && !alertNoDataForFilters" class="row pt-3">
-        <div class="col-md-4">
+        <div class="col-md-3">
           <!-- <label class="fw-bold">Punti: {{getTotalTargetPointsPorPage()}}</label> -->
           <h5
             v-if="!isLoading && !alertTableEmpty"
@@ -561,7 +751,7 @@ function goToEdit(opId: number) {
             Punti di target totali: {{ getTotalTargetPointsPorPage() }}
           </h5>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <h5
             v-if="!isLoading && !alertTableEmpty"
             class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
@@ -569,12 +759,20 @@ function goToEdit(opId: number) {
             Punti di stop totali: {{ getTotalStopPointsPorPage() }}
           </h5>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <h5
             v-if="!isLoading && !alertTableEmpty"
             class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
           >
             Win rate: {{ getWinRate() }} %
+          </h5>
+        </div>
+        <div class="col-md-3">
+          <h5
+            v-if="!isLoading && !alertTableEmpty"
+            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+          >
+            R/R Medio: {{ getMediumRiskReturn() }}
           </h5>
         </div>
       </div>
