@@ -14,6 +14,7 @@ const riskReturn = ref<number>(0);
 const alertSaveSucces = ref(false);
 const alertEmptyField = ref(false);
 const comments = ref("");
+// const image = ref("");
 
 onMounted(() => {
   emptyField();
@@ -90,6 +91,29 @@ function emptyField() {
   targetPonits.value = undefined;
   stopPonits.value = undefined;
   comments.value = "";
+}
+
+async function onFileChange(e: any) {
+  console.log(e.target.files);
+  //getBase64(e.target.files[0]);
+  console.log(await getBase64(e.target.files[0]));
+
+}
+
+function getBase64(file: any) {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader();
+   reader.readAsDataURL(file);
+   reader.onload = function () {
+     resolve(reader.result);
+   };
+   reader.onerror = function (error) {
+     //console.log('Error: ', error);
+     reject(error);
+   };
+  })
+   
+   
 }
 
 function goToSummary() {
@@ -242,7 +266,7 @@ function goToSummary() {
               <label for="formFile" class="fw-bold form-label"
                 >Allega File</label
               >
-              <input class="form-control" type="file" id="formFile" />
+              <input class="form-control" type="file" id="formFile" @change="onFileChange" />
             </div>
           </div>
         </div>
