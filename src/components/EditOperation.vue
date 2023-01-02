@@ -103,7 +103,7 @@ function checkFieldEmpty() {
     // } else {
 
     // }
-    
+
     const saveData = {
       data: operationData.value,
       result: targetOrStopRadio.value === "1" ? "Target" : "Stop",

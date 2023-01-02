@@ -119,7 +119,8 @@ function filterOperationsTable() {
     if (endTargetPoints != 0) {
       operationList.value = operationList.value.filter(
         (el) =>
-        startTargetPoints <= el.targetPoints && el.targetPoints <= endTargetPoints
+          startTargetPoints <= el.targetPoints &&
+          el.targetPoints <= endTargetPoints
       );
     } else {
       operationList.value;
@@ -127,13 +128,15 @@ function filterOperationsTable() {
     if (endStopPoints != 0) {
       operationList.value = operationList.value.filter(
         (el) =>
-        startStopPoints <= el.stopPoints && el.stopPoints <= endStopPoints
+          startStopPoints <= el.stopPoints && el.stopPoints <= endStopPoints
       );
     } else {
       operationList.value;
     }
     operationList.value = filterOperationDynamic
-      ? operationList.value.filter((el) => el.dynamic === filterOperationDynamic)
+      ? operationList.value.filter(
+          (el) => el.dynamic === filterOperationDynamic
+        )
       : operationList.value;
     // operationList.value =
     //   startRiskResult && endRiskResult
@@ -205,7 +208,7 @@ function isActive(pageNumber: number) {
   return pageNumber == actualPage.value ? "active" : "";
 }
 
-//LABEL PUNTI TARGET, STOP, WIN RATE E RISCHIO RENDIMENTO MEDIO 
+//LABEL PUNTI TARGET, STOP, WIN RATE E RISCHIO RENDIMENTO MEDIO
 function getTotalTargetPointsPorPage() {
   let total = 0;
   operationList.value.forEach((el) => {
@@ -368,7 +371,10 @@ function goToEdit(opId: number) {
               v-model="filteredData.dynamicRadio"
               :value="'Rating maggiore di 5'"
             />
-            <label class="fw-bold form-check-label" for="ratingMaggioreDi5Radio">
+            <label
+              class="fw-bold form-check-label"
+              for="ratingMaggioreDi5Radio"
+            >
               Rating maggiore di 5
             </label>
           </div>
@@ -403,7 +409,9 @@ function goToEdit(opId: number) {
         class="row pb-5 align-items-center"
       >
         <div class="col-md-4 align-self-center">
-          <label for="startDate" class="fw-bold form-label">Punti Target Da</label>
+          <label for="startDate" class="fw-bold form-label"
+            >Punti Target Da</label
+          >
           <input
             type="number"
             class="form-control"
@@ -421,7 +429,9 @@ function goToEdit(opId: number) {
           />
         </div> -->
         <div class="col-md-4 align-self-center">
-          <label for="startDate" class="fw-bold form-label">Punti Stop Da</label>
+          <label for="startDate" class="fw-bold form-label"
+            >Punti Stop Da</label
+          >
           <input
             type="number"
             class="form-control"
@@ -439,9 +449,7 @@ function goToEdit(opId: number) {
           />
         </div> -->
         <div class="col-md-4 align-self-center">
-          <label for="startDate" class="fw-bold form-label"
-            >R/R Da</label
-          >
+          <label for="startDate" class="fw-bold form-label">R/R Da</label>
           <input
             type="number"
             class="form-control"
@@ -559,9 +567,7 @@ function goToEdit(opId: number) {
           />
         </div> -->
         <div class="col-md-4 align-self-center">
-          <label for="endDate" class="fw-bold form-label"
-            >R/R A</label
-          >
+          <label for="endDate" class="fw-bold form-label">R/R A</label>
           <input
             type="number"
             class="form-control"

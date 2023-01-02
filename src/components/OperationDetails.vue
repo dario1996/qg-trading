@@ -7,9 +7,11 @@ const router = useRouter();
 const route = useRoute();
 const operationDetails = ref<OperationDetails>();
 const comments = ref("");
+const image = ref("");
 
 interface OperationDetails {
   comments: string;
+  image: string;
   id: number;
 }
 
@@ -27,6 +29,11 @@ function getOperation() {
       operationDetails.value?.comments === undefined
         ? ""
         : operationDetails.value.comments;
+    image.value =
+      operationDetails.value?.image === undefined
+        ? ""
+        : operationDetails.value.image;
+    console.log(operationDetails.value?.image);
   });
 }
 
@@ -39,22 +46,23 @@ function goToAddOperation() {
 
 <template>
   <div class="card margin-row asd">
-    <h3 class="fw-bold card-title mt-4 mb-4 d-flex justify-content-center">
+    <h3 class="fw-bold card-title mt-4 mb-5 d-flex justify-content-center">
       Dettaglio operazione
     </h3>
     <div class="card-body">
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <h3>Commenti operazione</h3>
-          <label>{{ comments }}</label>
+          <div class="pt-5">{{ comments }}</div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-1"></div>
+        <div class="col-md-7">
           <h3>Screen operazione</h3>
-          <div class="limit">
-            <img src="../assets/back_img_2.png" />
+          <div class="pt-5">
+            <img :src="image" class="img-fluid" />
           </div>
         </div>
-        <div class="mt-0 pt-3 d-flex justify-content-center">
+        <div class="mt-0 pt-5 d-flex justify-content-center">
           <button
             type="button"
             class="fw-bold ms-3 btn btn-outline-primary"
@@ -78,8 +86,8 @@ function goToAddOperation() {
   margin-bottom: 20px;
 }
 .limit {
-  width: 300px;
-  height: 500px;
+  width: 550px;
+  height: 300px;
   max-height: 500px;
   overflow: hidden;
 }

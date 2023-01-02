@@ -14,7 +14,7 @@ const riskReturn = ref<number>(0);
 const alertSaveSucces = ref(false);
 const alertEmptyField = ref(false);
 const comments = ref("");
-// const image = ref("");
+const image = ref<unknown>("");
 
 onMounted(() => {
   emptyField();
@@ -50,12 +50,7 @@ function checkFieldEmpty() {
   } else {
     alertSaveSucces.value = true;
     alertEmptyField.value = false;
-    //WARNING: se targetPonits o stopPonits tornano stringa vuota metto null
-    // if(targetOrStopRadio.value === "1") {
-    //   targetOrStopRadio.value = "Target"
-    // } else {
 
-    // }
     const saveData = {
       data: operationData.value,
       time: operationTime.value,
@@ -71,13 +66,9 @@ function checkFieldEmpty() {
       comments: comments.value,
       riskReturn:
         parseFloat(getRiskReturn()) === null ? 0 : parseFloat(getRiskReturn()),
+      image: image.value,
     };
-    // if(targetOrStopRadio.value === "1" && stopPonits.value != 0) {
-    //   stopPonits.value = 0
-    // }
-    // if(targetOrStopRadio.value === "0" && targetPonits.value != 0) {
-    //   targetPonits.value = 0
-    // }
+
     OperationsService.addOperation(saveData);
     console.log(saveData);
   }
@@ -95,25 +86,21 @@ function emptyField() {
 
 async function onFileChange(e: any) {
   console.log(e.target.files);
-  //getBase64(e.target.files[0]);
   console.log(await getBase64(e.target.files[0]));
-
+  image.value = await getBase64(e.target.files[0]);
 }
 
 function getBase64(file: any) {
   return new Promise((resolve, reject) => {
     var reader = new FileReader();
-   reader.readAsDataURL(file);
-   reader.onload = function () {
-     resolve(reader.result);
-   };
-   reader.onerror = function (error) {
-     //console.log('Error: ', error);
-     reject(error);
-   };
-  })
-   
-   
+    reader.readAsDataURL(file);
+    reader.onload = function () {
+      resolve(reader.result);
+    };
+    reader.onerror = function (error) {
+      reject(error);
+    };
+  });
 }
 
 function goToSummary() {
@@ -266,7 +253,12 @@ function goToSummary() {
               <label for="formFile" class="fw-bold form-label"
                 >Allega File</label
               >
-              <input class="form-control" type="file" id="formFile" @change="onFileChange" />
+              <input
+                class="form-control"
+                type="file"
+                id="formFile"
+                @change="onFileChange"
+              />
             </div>
           </div>
         </div>
@@ -331,12 +323,8 @@ function goToSummary() {
 .card-title-center {
   text-align: center;
 }
-/* .margin-row {
-  margin-top: 20px;
-} */
 .asd {
   margin-top: 125px !important;
-  /* margin-bottom: 75px !important; */
   margin: 2rem auto;
   padding: 1rem;
   border-radius: 12px;
