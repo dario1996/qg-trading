@@ -286,28 +286,70 @@ function goToEdit(opId: number) {
         Filtri
       </h5>
       <div
-        v-if="!isLoading && !alertTableEmpty"
-        class="row pb-5 align-items-center"
+        v-if="true"
+        class="accordion pb-5"
+        id="accordionPanelsStayOpenExample"
       >
-        <div class="col-md-2 align-self-center">
-          <label for="startDate" class="fw-bold form-label">Da</label>
-          <input
-            type="date"
-            class="form-control"
-            id="startDate"
-            v-model="filteredData.startDate"
-          />
-        </div>
-        <div class="col-md-2 align-self-center">
-          <label for="endDate" class="fw-bold form-label">A</label>
-          <input
-            type="date"
-            class="form-control"
-            id="endDate"
-            v-model="filteredData.endDate"
-          />
-        </div>
-        <div class="col-md-2 d-flex align-self-end justify-content-end">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#panelsStayOpen-collapseOne"
+              aria-expanded="false"
+              aria-controls="panelsStayOpen-collapseOne"
+            >
+              Data e orario
+            </button>
+          </h2>
+          <div
+            id="panelsStayOpen-collapseOne"
+            class="accordion-collapse collapse"
+            aria-labelledby="panelsStayOpen-headingOne"
+          >
+            <div class="accordion-body">
+              <div
+                v-if="!isLoading && !alertTableEmpty"
+                class="row pb-2 align-items-center"
+              >
+                <div class="col-md-2 align-self-center">
+                  <label for="startDate" class="fw-bold form-label">Da</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="startDate"
+                    v-model="filteredData.startDate"
+                  />
+                </div>
+                <div class="col-md-2 align-self-center">
+                  <label for="endDate" class="fw-bold form-label">A</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="endDate"
+                    v-model="filteredData.endDate"
+                  />
+                </div>
+                <div class="col-md-2 align-self-center">
+                  <label for="startDate" class="fw-bold form-label">Da</label>
+                  <input
+                    type="time"
+                    class="form-control"
+                    id="startDate"
+                    v-model="filteredData.startDate"
+                  />
+                </div>
+                <div class="col-md-2 align-self-center">
+                  <label for="endDate" class="fw-bold form-label">A</label>
+                  <input
+                    type="time"
+                    class="form-control"
+                    id="endDate"
+                    v-model="filteredData.endDate"
+                  />
+                </div>
+                <!-- <div class="col-md-2 d-flex align-self-end justify-content-end">
           <div class="form-check form-check-inline">
             <input
               class="form-check-input"
@@ -378,48 +420,321 @@ function goToEdit(opId: number) {
               Rating maggiore di 5
             </label>
           </div>
+        </div> -->
+                <div class="col-md-2 d-flex align-self-end justify-content-end">
+                  <button
+                    type="button"
+                    class="fw-bold ms-3 btn btn-outline-success"
+                    @click="filterOperationsTable()"
+                  >
+                    Filtra tabella
+                  </button>
+                </div>
+                <div class="col-md-2 d-flex align-self-end justify-content-end">
+                  <button
+                    type="button"
+                    class="fw-bold ms-3 btn btn-outline-danger"
+                    @click="cancelFilters()"
+                  >
+                    Annulla filtri
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-md-1 align-self-end">
-          <button
-            type="button"
-            class="fw-bold ms-3 btn btn-outline-success"
-            @click="filterOperationsTable()"
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#panelsStayOpen-collapseTwo"
+              aria-expanded="false"
+              aria-controls="panelsStayOpen-collapseTwo"
+            >
+              Accordion Item #2
+            </button>
+          </h2>
+          <div
+            id="panelsStayOpen-collapseTwo"
+            class="accordion-collapse collapse"
+            aria-labelledby="panelsStayOpen-headingTwo"
           >
-            Filtra tabella
-          </button>
+            <div class="accordion-body">
+              <strong>This is the second item's accordion body.</strong> It is
+              hidden by default, until the collapse plugin adds the appropriate
+              classes that we use to style each element. These classes control
+              the overall appearance, as well as the showing and hiding via CSS
+              transitions. You can modify any of this with custom CSS or
+              overriding our default variables. It's also worth noting that just
+              about any HTML can go within the <code>.accordion-body</code>,
+              though the transition does limit overflow.
+            </div>
+          </div>
         </div>
-        <div class="col-md-1 align-self-end">
-          <button
-            type="button"
-            class="fw-bold ms-3 btn btn-outline-danger"
-            @click="cancelFilters()"
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#panelsStayOpen-collapseThree"
+              aria-expanded="false"
+              aria-controls="panelsStayOpen-collapseThree"
+            >
+              Accordion Item #3
+            </button>
+          </h2>
+          <div
+            id="panelsStayOpen-collapseThree"
+            class="accordion-collapse collapse"
+            aria-labelledby="panelsStayOpen-headingThree"
           >
-            Annulla filtri
-          </button>
+            <div class="accordion-body">
+              <strong>This is the third item's accordion body.</strong> It is
+              hidden by default, until the collapse plugin adds the appropriate
+              classes that we use to style each element. These classes control
+              the overall appearance, as well as the showing and hiding via CSS
+              transitions. You can modify any of this with custom CSS or
+              overriding our default variables. It's also worth noting that just
+              about any HTML can go within the <code>.accordion-body</code>,
+              though the transition does limit overflow.
+            </div>
+          </div>
         </div>
       </div>
-      <!-- <h5
+      <div v-if="false">
+        <div
+          v-if="!isLoading && !alertTableEmpty"
+          class="row pb-5 align-items-center"
+        >
+          <div class="col-md-2 align-self-center">
+            <label for="startDate" class="fw-bold form-label">Da</label>
+            <input
+              type="date"
+              class="form-control"
+              id="startDate"
+              v-model="filteredData.startDate"
+            />
+          </div>
+          <div class="col-md-2 align-self-center">
+            <label for="endDate" class="fw-bold form-label">A</label>
+            <input
+              type="date"
+              class="form-control"
+              id="endDate"
+              v-model="filteredData.endDate"
+            />
+          </div>
+          <div class="col-md-2 align-self-center">
+            <label for="startDate" class="fw-bold form-label">Da</label>
+            <input
+              type="time"
+              class="form-control"
+              id="startDate"
+              v-model="filteredData.startDate"
+            />
+          </div>
+          <div class="col-md-2 align-self-center">
+            <label for="endDate" class="fw-bold form-label">A</label>
+            <input
+              type="time"
+              class="form-control"
+              id="endDate"
+              v-model="filteredData.endDate"
+            />
+          </div>
+          <!-- <div class="col-md-2 d-flex align-self-end justify-content-end">
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="stopOrTargetRadio"
+              id="targetRadio"
+              v-model="filteredData.targetOrStopRadio"
+              :value="'Target'"
+            />
+            <label class="fw-bold form-check-label" for="targetRadio">
+              Target
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="stopOrTargetRadio"
+              id="stopRadio"
+              v-model="filteredData.targetOrStopRadio"
+              :value="'Stop'"
+            />
+            <label class="fw-bold form-check-label" for="stopRadio">
+              Stop
+            </label>
+          </div>
+        </div>
+        <div class="col-md-4 d-flex align-self-end justify-content-center">
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="dynamicRadio"
+              id="rating4Radio"
+              v-model="filteredData.dynamicRadio"
+              :value="'Rating 4'"
+            />
+            <label class="fw-bold form-check-label" for="rating4Radio">
+              Rating 4
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="dynamicRadio"
+              id="rating5Radio"
+              v-model="filteredData.dynamicRadio"
+              :value="'Rating 5'"
+            />
+            <label class="fw-bold form-check-label" for="rating5Radio">
+              Rating 5
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="dynamicRadio"
+              id="ratingMaggioreDi5Radio"
+              v-model="filteredData.dynamicRadio"
+              :value="'Rating maggiore di 5'"
+            />
+            <label
+              class="fw-bold form-check-label"
+              for="ratingMaggioreDi5Radio"
+            >
+              Rating maggiore di 5
+            </label>
+          </div>
+        </div> -->
+          <div class="col-md-2 d-flex align-self-end justify-content-end">
+            <button
+              type="button"
+              class="fw-bold ms-3 btn btn-outline-success"
+              @click="filterOperationsTable()"
+            >
+              Filtra tabella
+            </button>
+          </div>
+          <div class="col-md-2 d-flex align-self-end justify-content-end">
+            <button
+              type="button"
+              class="fw-bold ms-3 btn btn-outline-danger"
+              @click="cancelFilters()"
+            >
+              Annulla filtri
+            </button>
+          </div>
+        </div>
+        <div
+          v-if="!isLoading && !alertTableEmpty"
+          class="row pb-5 align-items-center"
+        >
+          <div class="col-md-2 d-flex align-self-end justify-content-start">
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="stopOrTargetRadio"
+                id="targetRadio"
+                v-model="filteredData.targetOrStopRadio"
+                :value="'Target'"
+              />
+              <label class="fw-bold form-check-label" for="targetRadio">
+                Target
+              </label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="stopOrTargetRadio"
+                id="stopRadio"
+                v-model="filteredData.targetOrStopRadio"
+                :value="'Stop'"
+              />
+              <label class="fw-bold form-check-label" for="stopRadio">
+                Stop
+              </label>
+            </div>
+          </div>
+          <div class="col-md-4 d-flex align-self-end justify-content-center">
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="dynamicRadio"
+                id="rating4Radio"
+                v-model="filteredData.dynamicRadio"
+                :value="'Rating 4'"
+              />
+              <label class="fw-bold form-check-label" for="rating4Radio">
+                Rating 4
+              </label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="dynamicRadio"
+                id="rating5Radio"
+                v-model="filteredData.dynamicRadio"
+                :value="'Rating 5'"
+              />
+              <label class="fw-bold form-check-label" for="rating5Radio">
+                Rating 5
+              </label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="dynamicRadio"
+                id="ratingMaggioreDi5Radio"
+                v-model="filteredData.dynamicRadio"
+                :value="'Rating maggiore di 5'"
+              />
+              <label
+                class="fw-bold form-check-label"
+                for="ratingMaggioreDi5Radio"
+              >
+                Rating maggiore di 5
+              </label>
+            </div>
+          </div>
+        </div>
+        <!-- <h5
         v-if="!isLoading && !alertTableEmpty"
         class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
       >
         Filtri punti di target/stop e rischio rendimento
       </h5> -->
-      <div
-        v-if="!isLoading && !alertTableEmpty"
-        class="row pb-5 align-items-center"
-      >
-        <div class="col-md-4 align-self-center">
-          <label for="startDate" class="fw-bold form-label"
-            >Punti Target Da</label
-          >
-          <input
-            type="number"
-            class="form-control"
-            id="startDate"
-            v-model="filteredData.startTargetPoints"
-          />
-        </div>
-        <!-- <div class="col-md-2 align-self-center">
+        <div
+          v-if="!isLoading && !alertTableEmpty"
+          class="row pb-5 align-items-center"
+        >
+          <div class="col-md-4 align-self-center">
+            <label for="startDate" class="fw-bold form-label"
+              >Punti Target Da</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="startDate"
+              v-model="filteredData.startTargetPoints"
+            />
+          </div>
+          <!-- <div class="col-md-2 align-self-center">
           <label for="endDate" class="fw-bold form-label">P. Target A</label>
           <input
             type="number"
@@ -428,18 +743,18 @@ function goToEdit(opId: number) {
             v-model="filteredData.endDate"
           />
         </div> -->
-        <div class="col-md-4 align-self-center">
-          <label for="startDate" class="fw-bold form-label"
-            >Punti Stop Da</label
-          >
-          <input
-            type="number"
-            class="form-control"
-            id="startDate"
-            v-model="filteredData.startStopPoints"
-          />
-        </div>
-        <!-- <div class="col-md-2 align-self-center">
+          <div class="col-md-4 align-self-center">
+            <label for="startDate" class="fw-bold form-label"
+              >Punti Stop Da</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="startDate"
+              v-model="filteredData.startStopPoints"
+            />
+          </div>
+          <!-- <div class="col-md-2 align-self-center">
           <label for="endDate" class="fw-bold form-label">P. Stop A</label>
           <input
             type="number"
@@ -448,16 +763,16 @@ function goToEdit(opId: number) {
             v-model="filteredData.endDate"
           />
         </div> -->
-        <div class="col-md-4 align-self-center">
-          <label for="startDate" class="fw-bold form-label">R/R Da</label>
-          <input
-            type="number"
-            class="form-control"
-            id="startDate"
-            v-model="filteredData.startRiskResult"
-          />
-        </div>
-        <!-- <div class="col-md-2 align-self-center">
+          <div class="col-md-4 align-self-center">
+            <label for="startDate" class="fw-bold form-label">R/R Da</label>
+            <input
+              type="number"
+              class="form-control"
+              id="startDate"
+              v-model="filteredData.startRiskResult"
+            />
+          </div>
+          <!-- <div class="col-md-2 align-self-center">
           <label for="endDate" class="fw-bold form-label"
             >Rischio/Rend. A</label
           >
@@ -468,7 +783,7 @@ function goToEdit(opId: number) {
             v-model="filteredData.endRiskResult"
           />
         </div> -->
-        <!-- <div class="col-md-2 align-self-end">
+          <!-- <div class="col-md-2 align-self-end">
           <div class="form-check form-check-inline">
             <input
               class="form-check-input"
@@ -496,7 +811,7 @@ function goToEdit(opId: number) {
             </label>
           </div>
         </div> -->
-        <!-- <div class="col-md-2 align-self-end">
+          <!-- <div class="col-md-2 align-self-end">
           <button
             type="button"
             class="fw-bold ms-3 btn btn-outline-success"
@@ -514,12 +829,12 @@ function goToEdit(opId: number) {
             Annulla filtri
           </button>
         </div> -->
-      </div>
-      <div
-        v-if="!isLoading && !alertTableEmpty"
-        class="row pb-5 align-items-center"
-      >
-        <!-- <div class="col-md-2 align-self-center">
+        </div>
+        <div
+          v-if="!isLoading && !alertTableEmpty"
+          class="row pb-5 align-items-center"
+        >
+          <!-- <div class="col-md-2 align-self-center">
           <label for="startDate" class="fw-bold form-label">P. Target Da</label>
           <input
             type="number"
@@ -528,16 +843,18 @@ function goToEdit(opId: number) {
             v-model="filteredData.startDate"
           />
         </div> -->
-        <div class="col-md-4 align-self-center">
-          <label for="endDate" class="fw-bold form-label">Punti Target A</label>
-          <input
-            type="number"
-            class="form-control"
-            id="endDate"
-            v-model="filteredData.endTargetPoints"
-          />
-        </div>
-        <!-- <div class="col-md-2 align-self-center">
+          <div class="col-md-4 align-self-center">
+            <label for="endDate" class="fw-bold form-label"
+              >Punti Target A</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="endDate"
+              v-model="filteredData.endTargetPoints"
+            />
+          </div>
+          <!-- <div class="col-md-2 align-self-center">
           <label for="startDate" class="fw-bold form-label">P. Stop Da</label>
           <input
             type="number"
@@ -546,16 +863,16 @@ function goToEdit(opId: number) {
             v-model="filteredData.startDate"
           />
         </div> -->
-        <div class="col-md-4 align-self-center">
-          <label for="endDate" class="fw-bold form-label">Punti Stop A</label>
-          <input
-            type="number"
-            class="form-control"
-            id="endDate"
-            v-model="filteredData.endStopPoints"
-          />
-        </div>
-        <!-- <div class="col-md-2 align-self-center">
+          <div class="col-md-4 align-self-center">
+            <label for="endDate" class="fw-bold form-label">Punti Stop A</label>
+            <input
+              type="number"
+              class="form-control"
+              id="endDate"
+              v-model="filteredData.endStopPoints"
+            />
+          </div>
+          <!-- <div class="col-md-2 align-self-center">
           <label for="startDate" class="fw-bold form-label"
             >Rischio/Rend. Da</label
           >
@@ -566,16 +883,16 @@ function goToEdit(opId: number) {
             v-model="filteredData.startRiskResult"
           />
         </div> -->
-        <div class="col-md-4 align-self-center">
-          <label for="endDate" class="fw-bold form-label">R/R A</label>
-          <input
-            type="number"
-            class="form-control"
-            id="endDate"
-            v-model="filteredData.endRiskResult"
-          />
-        </div>
-        <!-- <div class="col-md-2 align-self-end">
+          <div class="col-md-4 align-self-center">
+            <label for="endDate" class="fw-bold form-label">R/R A</label>
+            <input
+              type="number"
+              class="form-control"
+              id="endDate"
+              v-model="filteredData.endRiskResult"
+            />
+          </div>
+          <!-- <div class="col-md-2 align-self-end">
           <div class="form-check form-check-inline">
             <input
               class="form-check-input"
@@ -603,7 +920,7 @@ function goToEdit(opId: number) {
             </label>
           </div>
         </div> -->
-        <!-- <div class="col-md-2 align-self-end">
+          <!-- <div class="col-md-2 align-self-end">
           <button
             type="button"
             class="fw-bold ms-3 btn btn-outline-success"
@@ -621,6 +938,7 @@ function goToEdit(opId: number) {
             Annulla filtri
           </button>
         </div> -->
+        </div>
       </div>
       <div
         v-if="alertTableEmpty"
