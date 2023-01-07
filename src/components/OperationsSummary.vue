@@ -28,6 +28,8 @@ const tableHeader = ref({
 const filteredData = ref({
   startDate: "",
   endDate: "",
+  startTime: "",
+  endTime: "",
   targetOrStopRadio: "",
   dynamicRadio: "",
   startTargetPoints: 0,
@@ -96,6 +98,8 @@ function filterOperationsTable() {
   let endStopPoints = filteredData.value.endStopPoints;
   let startDate = localizeDate(filteredData.value.startDate);
   let endDate = localizeDate(filteredData.value.endDate);
+  let startTime = filteredData.value.startTime;
+  let endTime = filteredData.value.endTime;
   if (operationList.value) {
     operationList.value = filterOperationResult
       ? operationList.value.filter((el) => el.result === filterOperationResult)
@@ -138,13 +142,13 @@ function filterOperationsTable() {
           (el) => el.dynamic === filterOperationDynamic
         )
       : operationList.value;
-    // operationList.value =
-    //   startRiskResult && endRiskResult
-    //     ? operationList.value.filter(
-    //         (el) =>
-    //           startRiskResult <= el.riskReturn && el.riskReturn <= endRiskResult
-    //       )
-    //     : operationList.value;
+    operationList.value =
+      startTime && endTime
+        ? operationList.value.filter(
+            (el) =>
+            startTime <= el.time && el.time <= endTime
+          )
+        : operationList.value;
     getPagesData(1);
   }
   console.log(operationList.value);
@@ -161,6 +165,8 @@ function cancelFilters() {
   filteredData.value.targetOrStopRadio = "";
   filteredData.value.startRiskResult = 0;
   filteredData.value.endRiskResult = 0;
+  filteredData.value.startTime = "";
+  filteredData.value.endTime = "";
   alertNoDataForFilters.value = false;
   getOperations();
 }
@@ -332,21 +338,21 @@ function goToEdit(opId: number) {
                   />
                 </div>
                 <div class="col-md-2 align-self-center">
-                  <label for="startDate" class="fw-bold form-label">Da</label>
+                  <label for="startTime" class="fw-bold form-label">Da</label>
                   <input
                     type="time"
                     class="form-control"
-                    id="startDate"
-                    v-model="filteredData.startDate"
+                    id="startTime"
+                    v-model="filteredData.startTime"
                   />
                 </div>
                 <div class="col-md-2 align-self-center">
-                  <label for="endDate" class="fw-bold form-label">A</label>
+                  <label for="endTime" class="fw-bold form-label">A</label>
                   <input
                     type="time"
                     class="form-control"
-                    id="endDate"
-                    v-model="filteredData.endDate"
+                    id="endTime"
+                    v-model="filteredData.endTime"
                   />
                 </div>
               </div>
