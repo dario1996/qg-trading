@@ -33,13 +33,13 @@ const data = {
 
 const tableHeader = ref({
   id: "Id",
-  data: "Data",
-  esitoOperazione: "Esito",
+  data: "Data e Ora",
   rating: "Rating",
-  stop: "Stop",
+  esitoOperazione: "Esito",
+  puntiDiTarget: "Punti di Target",
+  puntiDiStop: "Punti di Stop",
+  rischioRendimento: "Rischio/Rendimento",
   target: "Target",
-  edit: "Modifica",
-  delete: "Elimina",
   detail: "Dettaglio",
 });
 
@@ -50,10 +50,12 @@ const tableHeader = ref({
 interface OperationList {
   id: number;
   data: string;
+  time: string;
   result: string;
   dynamic: string;
   targetPoints: number;
   stopPoints: number;
+  riskReturn: number;
 }
 
 onMounted(async () => {
@@ -237,36 +239,51 @@ function goToDetails(opId: number) {
           </p>
           <table
             v-if="tableVisibility && !isLoading"
-            class="table table-responsive mt-5"
+            class="table table-responsive align-middle mt-5"
           >
             <thead>
               <tr>
                 <th scope="col">{{ tableHeader.id }}</th>
                 <th scope="col">{{ tableHeader.data }}</th>
                 <th scope="col">{{ tableHeader.rating }}</th>
-                <th scope="col">{{ tableHeader.esitoOperazione }}</th>
-                <!-- <th scope="col">{{ tableHeader.edit }}</th>
-            <th scope="col">{{ tableHeader.delete }}</th> -->
+                <th class="text-center" scope="col">
+                  {{ tableHeader.esitoOperazione }}
+                </th>
+                <th class="text-center" scope="col">
+                  {{ tableHeader.puntiDiTarget }}
+                </th>
+                <th class="text-center" scope="col">
+                  {{ tableHeader.puntiDiStop }}
+                </th>
+                <th class="text-center" scope="col">
+                  {{ tableHeader.rischioRendimento }}
+                </th>
                 <th scope="col">{{ tableHeader.detail }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="operation in lastOperationAdded" :key="operation.id">
                 <th scope="row">{{ operation.id }}</th>
-                <td>{{ convertDate(operation.data) }}</td>
+                <td>
+                  {{ convertDate(operation.data) + " - " + operation.time }}
+                </td>
                 <td>{{ operation.dynamic }}</td>
-                <td>{{ operation.result }}</td>
-                <!-- <td>{{ operation.target }}</td> -->
-                <!-- <td>
-              <button type="button" class="mx-1 btn btn-outline-primary">
-                <i class="bi bi-pencil-square"></i>
-              </button>
-            </td>
-            <td>
-              <button type="button" class="mx-1 btn btn-outline-danger">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td> -->
+                <!-- <td>{{ operation.result }}</td> -->
+                <td class="text-center">
+                  <i
+                    v-if="operation.result == 'Target'"
+                    class="bi bi-check-circle-fill fs-3 text-success"
+                  ></i>
+                  <i
+                    v-if="operation.result == 'Stop'"
+                    class="bi bi-x-circle-fill fs-3 text-danger"
+                  ></i>
+                </td>
+                <td class="text-center">{{ operation.targetPoints }}</td>
+                <td class="text-center">{{ operation.stopPoints }}</td>
+                <td class="text-center">{{ operation.riskReturn }}</td>
+                <!-- operation.target -->
+                <!-- <td>{{}}</td> -->
                 <td>
                   <button
                     type="button"
