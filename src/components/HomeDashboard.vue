@@ -127,7 +127,7 @@ function getTotalnetPoints() {
     totalTargetPoints = totalTargetPoints + el.targetPoints;
     totalStopPoints = totalStopPoints + el.stopPoints;
   });
-  return totalTargetPoints - totalStopPoints;
+  return (totalTargetPoints - totalStopPoints).toFixed(1);
 }
 
 function convertDate(dateString: string) {

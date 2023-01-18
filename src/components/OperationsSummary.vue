@@ -220,7 +220,7 @@ function getTotalTargetPointsPorPage() {
   operationList.value.forEach((el) => {
     total = total + el.targetPoints;
   });
-  return total;
+  return total.toFixed(1);
 }
 
 function getTotalStopPointsPorPage() {
@@ -228,7 +228,7 @@ function getTotalStopPointsPorPage() {
   operationList.value.forEach((el) => {
     total = total + el.stopPoints;
   });
-  return total;
+  return total.toFixed(1);
 }
 
 function getWinRate() {
@@ -292,7 +292,7 @@ function goToEdit(opId: number) {
         Filtri
       </h5>
       <div
-        v-if="!isLoading"
+        v-if="!isLoading && !alertTableEmpty"
         class="accordion pb-3"
         id="accordionPanelsStayOpenExample"
       >
@@ -709,7 +709,7 @@ function goToEdit(opId: number) {
           </div>
         </div>
       </div>
-      <div v-if="!isLoading" class="pb-5 row">
+      <div v-if="!isLoading && !alertTableEmpty" class="pb-5 row">
         <div class="mt-0 pt-3 d-flex justify-content-center">
           <button
             type="button"

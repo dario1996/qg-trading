@@ -73,42 +73,19 @@ function saveOperation() {
 
 function checkFieldEmpty() {
   if (
-    targetOrStopRadio.value == "1" &&
-    (operationData.value == "" ||
-      dynamicRating.value == "" ||
-      targetPonits.value == null ||
-      comments.value == "")
-  ) {
-    alertEmptyField.value = true;
-    alertSaveSucces.value = false;
-  } else if (
-    targetOrStopRadio.value == "0" &&
-    (operationData.value == "" ||
-      dynamicRating.value == "" ||
-      stopPonits.value == null ||
-      comments.value == "")
-  ) {
-    alertEmptyField.value = true;
-    alertSaveSucces.value = false;
-  } else if (
-    targetOrStopRadio.value == "" &&
-    (operationData.value == "" ||
-      dynamicRating.value == "" ||
-      targetPonits.value == null ||
-      stopPonits.value == null ||
-      comments.value == "")
+    targetOrStopRadio.value == "" ||
+    operationData.value == "" ||
+    operationTime.value == "" ||
+    dynamicRating.value == "" ||
+    operationTime.value == "" ||
+    targetPonits.value == null ||
+    stopPonits.value == null
   ) {
     alertEmptyField.value = true;
     alertSaveSucces.value = false;
   } else {
     alertSaveSucces.value = true;
     alertEmptyField.value = false;
-    //WARNING: se targetPonits o stopPonits tornano stringa vuota metto null
-    // if(targetOrStopRadio.value === "1") {
-    //   targetOrStopRadio.value = "Target"
-    // } else {
-
-    // }
 
     const saveData = {
       data: operationData.value,
@@ -120,15 +97,15 @@ function checkFieldEmpty() {
           : dynamicRating.value === "1"
           ? "Rating 5"
           : "Rating maggiore di 5",
-      targetPoints: targetOrStopRadio.value === "1" ? targetPonits.value : 0,
-      stopPoints: targetOrStopRadio.value === "0" ? stopPonits.value : 0,
+      targetPoints: targetPonits.value,
+      stopPoints: stopPonits.value,
       comments: comments.value,
     };
     let opId: string | number = route.params.id as string;
     OperationsService.editOperation(saveData, parseInt(opId));
     console.log(saveData);
   }
-  getOperation();
+  //getOperation();
 }
 
 // function emptyField() {
