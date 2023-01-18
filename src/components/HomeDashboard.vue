@@ -123,10 +123,16 @@ function getWinRate() {
 function getTotalnetPoints() {
   let totalTargetPoints = 0;
   let totalStopPoints = 0;
-  operationList.value.forEach((el) => {
-    totalTargetPoints = totalTargetPoints + el.targetPoints;
-    totalStopPoints = totalStopPoints + el.stopPoints;
-  });
+  operationList.value
+    .filter((el) => el.result == "Target")
+    .forEach((el) => {
+      totalTargetPoints = totalTargetPoints + el.targetPoints;
+    });
+  operationList.value
+    .filter((el) => el.result == "Stop")
+    .forEach((el) => {
+      totalStopPoints = totalStopPoints + el.stopPoints;
+    });
   return (totalTargetPoints - totalStopPoints).toFixed(1);
 }
 
