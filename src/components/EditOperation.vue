@@ -7,6 +7,7 @@ const router = useRouter();
 const route = useRoute();
 const targetOrStopRadio = ref("");
 const operationData = ref("");
+const operationTime = ref("");
 const dynamicRating = ref("");
 const targetPonits = ref<number>();
 const stopPonits = ref<number>();
@@ -17,6 +18,7 @@ const comments = ref("");
 
 interface OperationToEdit {
   data: string;
+  time: string;
   result: string;
   dynamic: string;
   stopPoints: number;
@@ -40,6 +42,10 @@ function getOperation() {
       operationToEdit.value?.data === undefined
         ? ""
         : operationToEdit.value.data;
+    operationTime.value =
+      operationToEdit.value?.time === undefined
+        ? ""
+        : operationToEdit.value.time;
     targetPonits.value = operationToEdit.value?.targetPoints;
     comments.value =
       operationToEdit.value?.comments === undefined
@@ -106,6 +112,7 @@ function checkFieldEmpty() {
 
     const saveData = {
       data: operationData.value,
+      time: operationTime.value,
       result: targetOrStopRadio.value === "1" ? "Target" : "Stop",
       dynamic:
         dynamicRating.value === "0"
@@ -145,7 +152,7 @@ function goToSummary() {
     <div class="card-body">
       <h3 class="fw-bold card-title card-title-center">Modifica Operazione</h3>
       <form @submit.prevent="() => {}">
-        <div class="row margin-row">
+        <div class="row pt-5">
           <div class="col-md-6">
             <label for="inputData" class="fw-bold form-label">Data</label>
             <input
@@ -155,8 +162,17 @@ function goToSummary() {
               v-model="operationData"
             />
           </div>
+          <div class="col-md-6">
+            <label for="inputTime" class="fw-bold form-label">Orario</label>
+            <input
+              type="time"
+              class="form-control"
+              id="inputTime"
+              v-model="operationTime"
+            />
+          </div>
         </div>
-        <div class="row margin-row">
+        <div class="row pt-5">
           <div class="col-md-6">
             <div class="form-check">
               <input
@@ -227,7 +243,7 @@ function goToSummary() {
             </div>
           </div>
         </div>
-        <div class="row margin-row">
+        <div class="row pt-5">
           <div class="col-md-6">
             <label for="targetPoints" class="fw-bold form-label"
               >Punti di target</label
@@ -238,7 +254,6 @@ function goToSummary() {
               id="targetPoints"
               placeholder="Inserisci i punti di target"
               v-model="targetPonits"
-              :disabled="targetOrStopRadio === '0' ? true : false"
               min="0"
             />
           </div>
@@ -252,12 +267,10 @@ function goToSummary() {
               id="stopPoints"
               placeholder="Inserisci i punti di stop"
               v-model="stopPonits"
-              :disabled="targetOrStopRadio === '1' ? true : false"
               min="0"
             />
           </div>
         </div>
-
         <div class="row pt-5">
           <div class="col-md-6">
             <div class="">
@@ -314,7 +327,7 @@ function goToSummary() {
             <div>Tutti i campi sono obbligatori!</div>
           </div>
         </div>
-        <div class="row pt-3">
+        <div class="row pt-5">
           <div class="mt-0 pt-3 d-flex justify-content-center">
             <button
               type="button"
