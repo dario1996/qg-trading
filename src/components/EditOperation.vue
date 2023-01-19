@@ -26,6 +26,7 @@ interface OperationToEdit {
   targetPoints: number;
   comments: string;
   id: number;
+  image: string;
 }
 
 onMounted(() => {
@@ -61,6 +62,7 @@ async function getOperation() {
         : operationToEdit.value?.dynamic === "Rating 5"
         ? "1"
         : "2";
+    image.value = operationToEdit.value?.image;
   });
 }
 
