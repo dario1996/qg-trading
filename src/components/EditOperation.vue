@@ -15,6 +15,7 @@ const alertSaveSucces = ref(false);
 const alertEmptyField = ref(false);
 const operationToEdit = ref<OperationToEdit>();
 const comments = ref("");
+const image = ref<unknown>("");
 
 interface OperationToEdit {
   data: string;
@@ -100,6 +101,7 @@ function checkFieldEmpty() {
       targetPoints: targetPonits.value,
       stopPoints: stopPonits.value,
       comments: comments.value,
+      image: image.value,
     };
     let opId: string | number = route.params.id as string;
     OperationsService.editOperation(saveData, parseInt(opId));
@@ -116,6 +118,25 @@ function checkFieldEmpty() {
 //   stopPonits.value = undefined;
 //   comments.value = "";
 // }
+
+async function onFileChange(e: any) {
+  console.log(e.target.files);
+  console.log(await getBase64(e.target.files[0]));
+  image.value = await getBase64(e.target.files[0]);
+}
+
+function getBase64(file: any) {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function () {
+      resolve(reader.result);
+    };
+    reader.onerror = function (error) {
+      reject(error);
+    };
+  });
+}
 
 function goToSummary() {
   router.push({
@@ -266,7 +287,12 @@ function goToSummary() {
               <label for="formFile" class="fw-bold form-label"
                 >Allega File</label
               >
-              <input class="form-control" type="file" id="formFile" />
+              <input
+                class="form-control"
+                type="file"
+                id="formFile"
+                @change="onFileChange"
+              />
             </div>
           </div>
         </div>

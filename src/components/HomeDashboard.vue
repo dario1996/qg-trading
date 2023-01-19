@@ -97,7 +97,7 @@ function getOperations() {
         tableVisibility.value = false;
         alertTableEmpty.value = true;
       }
-    }, 1000);
+    }, 750);
     isMounted.value = true;
     getWinRate();
   });
