@@ -217,17 +217,21 @@ function isActive(pageNumber: number) {
 //LABEL PUNTI TARGET, STOP, WIN RATE E RISCHIO RENDIMENTO MEDIO
 function getTotalTargetPointsPorPage() {
   let total = 0;
-  operationList.value.forEach((el) => {
-    total = total + el.targetPoints;
-  });
+  operationList.value
+    .filter((el) => el.result == "Target")
+    .forEach((el) => {
+      total = total + el.targetPoints;
+    });
   return total.toFixed(1);
 }
 
 function getTotalStopPointsPorPage() {
   let total = 0;
-  operationList.value.forEach((el) => {
-    total = total + el.stopPoints;
-  });
+  operationList.value
+    .filter((el) => el.result == "Stop")
+    .forEach((el) => {
+      total = total + el.stopPoints;
+    });
   return total.toFixed(1);
 }
 
