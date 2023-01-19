@@ -35,7 +35,7 @@ function getRiskReturn() {
   return riskReturn.value.toFixed(1);
 }
 
-function checkFieldEmpty() {
+async function checkFieldEmpty() {
   if (
     targetOrStopRadio.value == "" ||
     operationData.value == "" ||
@@ -69,7 +69,7 @@ function checkFieldEmpty() {
       image: image.value,
     };
 
-    OperationsService.addOperation(saveData);
+    await OperationsService.addOperation(saveData);
     console.log(saveData);
   }
 }

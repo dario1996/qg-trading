@@ -82,8 +82,8 @@ onMounted(async () => {
   //console.log(data.datasets[0].data);
 });
 
-function getOperations() {
-  OperationsService.getOperations().then((response) => {
+async function getOperations() {
+  await OperationsService.getOperations().then((response) => {
     isLoading.value = true;
     tableVisibility.value = false;
     operationList.value = response.data;

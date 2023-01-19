@@ -32,9 +32,9 @@ onMounted(() => {
   getOperation();
 });
 
-function getOperation() {
+async function getOperation() {
   let opId: string | number = route.params.id as string;
-  OperationsService.getOperation(parseInt(opId)).then((response) => {
+  await OperationsService.getOperation(parseInt(opId)).then((response) => {
     if (response.data) {
       operationToEdit.value = response.data;
     }
@@ -72,7 +72,7 @@ function saveOperation() {
   // }
 }
 
-function checkFieldEmpty() {
+async function checkFieldEmpty() {
   if (
     targetOrStopRadio.value == "" ||
     operationData.value == "" ||
@@ -104,7 +104,7 @@ function checkFieldEmpty() {
       image: image.value,
     };
     let opId: string | number = route.params.id as string;
-    OperationsService.editOperation(saveData, parseInt(opId));
+    await OperationsService.editOperation(saveData, parseInt(opId));
     console.log(saveData);
   }
   //getOperation();
