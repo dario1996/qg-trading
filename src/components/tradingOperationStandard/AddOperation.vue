@@ -17,6 +17,31 @@ const alertEmptyField = ref(false);
 const comments = ref("");
 const image = ref<unknown>("");
 
+const selectedNews = ref([]);
+const newsList = ref([
+  "Decisioni tassi d’interesse della FED",
+  "Vendita al dettaglio dei beni essenziali",
+  "Sussidi di disoccupazione",
+  "Scorte di Petrolio Greggio",
+  "PIL",
+  "Principali ordinativi di beni durevoli",
+  "Vendite di nuove abitazioni",
+  "Vendite abitazioni esistenti",
+  "Indice prezzi spese personali principali",
+  "Permessi di costruzione",
+  "Proiezioni economiche FOMC",
+  "Decisioni FOMC",
+  "Rapporto sulla fiducia dei consumatori",
+  "ISM manifatturiero",
+  "ISM NON manifatturiero",
+  "Variazione occupazione NON agricola",
+  "Previsioni EIA sull’energia",
+  "Indice prezzi di produzione della FED di Filadelfia",
+  "No farm payroll",
+  "IPP",
+  "IPC"
+]);
+
 onMounted(() => {
   emptyField();
 });
@@ -114,9 +139,21 @@ function goToSummary() {
 <template>
   <div class="card asd">
     <div class="card-body">
-      <h3 v-if="standardOrNewsTrading == 'Standard'" class="fw-bold card-title card-title-center">Inserisci Operazione (STANDARD)</h3>
-      <h3 v-else-if="standardOrNewsTrading == 'News'" class="fw-bold card-title card-title-center">Inserisci Operazione (NEWS)</h3>
-      <h3 v-else class="fw-bold card-title card-title-center">Inserisci Operazione</h3>
+      <h3
+        v-if="standardOrNewsTrading == 'Standard'"
+        class="fw-bold card-title card-title-center"
+      >
+        Inserisci Operazione (STANDARD)
+      </h3>
+      <h3
+        v-else-if="standardOrNewsTrading == 'News'"
+        class="fw-bold card-title card-title-center"
+      >
+        Inserisci Operazione (NEWS)
+      </h3>
+      <h3 v-else class="fw-bold card-title card-title-center">
+        Inserisci Operazione
+      </h3>
       <form @submit.prevent="() => {}">
         <div class="row pt-5">
           <div class="col-md-10 d-flex align-self-end justify-content-start">
@@ -374,7 +411,7 @@ function goToSummary() {
             </div>
           </div>
           <div class="row pt-5">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="form-check">
                 <input
                   class="form-check-input"
@@ -402,46 +439,37 @@ function goToSummary() {
                 </label>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="flexRadioDefault"
-                  id="dynamicOneRadio"
-                  :value="'0'"
-                  v-model="dynamicRating"
-                />
-                <label class="fw-bold form-check-label" for="dynamicOneRadio">
-                  Rating 4
-                </label>
-              </div>
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="flexRadioDefault"
-                  id="dynamicTwoRadio"
-                  :value="'1'"
-                  v-model="dynamicRating"
-                />
-                <label class="fw-bold form-check-label" for="dynamicTwoRadio">
-                  Rating 5
-                </label>
-              </div>
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="flexRadioDefault"
-                  id="dynamicThreeRadio"
-                  :value="'2'"
-                  v-model="dynamicRating"
-                />
-                <label class="fw-bold form-check-label" for="dynamicThreeRadio">
-                  Rating maggiore di 5
-                </label>
-              </div>
+            <div class="col-md-4">
+              <label for="targetPoints" class="fw-bold form-label"
+                >Massimo target raggiunto</label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="targetPoints"
+                placeholder="Inserisci il massimo target raggiunto"
+                v-model="targetPonits"
+                min="0"
+              />
+            </div>
+            <div class="col-md-4">
+              <label
+                for="news"
+                class="fw-bold form-label"
+                aria-label="Default select example"
+                >News</label
+              >
+              <select
+                class="form-select"
+                id="news"
+                v-model="selectedNews"
+                multiple
+              >
+                <option v-for="news in newsList" :key="news">{{ news }}</option>
+              </select>
+              <p v-if="selectedNews.length > 0" class="fw-light">
+                {{ "News selezionate: " + selectedNews }}
+              </p>
             </div>
           </div>
           <div class="row pt-5">
