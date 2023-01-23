@@ -17,30 +17,30 @@ const alertEmptyField = ref(false);
 const comments = ref("");
 const image = ref<unknown>("");
 
-const selectedNews = ref([]);
-const newsList = ref([
-  "Decisioni tassi d’interesse della FED",
-  "Vendita al dettaglio dei beni essenziali",
-  "Sussidi di disoccupazione",
-  "Scorte di Petrolio Greggio",
-  "PIL",
-  "Principali ordinativi di beni durevoli",
-  "Vendite di nuove abitazioni",
-  "Vendite abitazioni esistenti",
-  "Indice prezzi spese personali principali",
-  "Permessi di costruzione",
-  "Proiezioni economiche FOMC",
-  "Decisioni FOMC",
-  "Rapporto sulla fiducia dei consumatori",
-  "ISM manifatturiero",
-  "ISM NON manifatturiero",
-  "Variazione occupazione NON agricola",
-  "Previsioni EIA sull’energia",
-  "Indice prezzi di produzione della FED di Filadelfia",
-  "No farm payroll",
-  "IPP",
-  "IPC"
-]);
+// const selectedNews = ref([]);
+// const newsList = ref([
+//   "Decisioni tassi d’interesse della FED",
+//   "Vendita al dettaglio dei beni essenziali",
+//   "Sussidi di disoccupazione",
+//   "Scorte di Petrolio Greggio",
+//   "PIL",
+//   "Principali ordinativi di beni durevoli",
+//   "Vendite di nuove abitazioni",
+//   "Vendite abitazioni esistenti",
+//   "Indice prezzi spese personali principali",
+//   "Permessi di costruzione",
+//   "Proiezioni economiche FOMC",
+//   "Decisioni FOMC",
+//   "Rapporto sulla fiducia dei consumatori",
+//   "ISM manifatturiero",
+//   "ISM NON manifatturiero",
+//   "Variazione occupazione NON agricola",
+//   "Previsioni EIA sull’energia",
+//   "Indice prezzi di produzione della FED di Filadelfia",
+//   "No farm payroll",
+//   "IPP",
+//   "IPC"
+// ]);
 
 onMounted(() => {
   emptyField();
@@ -67,7 +67,6 @@ async function checkFieldEmpty() {
     operationData.value == "" ||
     operationTime.value == "" ||
     dynamicRating.value == "" ||
-    operationTime.value == "" ||
     targetPonits.value == null ||
     stopPonits.value == null
   ) {
@@ -129,6 +128,13 @@ function getBase64(file: any) {
   });
 }
 
+function goToAddOperationNews() {
+  if (standardOrNewsTrading.value == "News") {
+    router.push({
+      path: "/operation/add/news",
+    });
+  }
+}
 function goToSummary() {
   router.push({
     path: "/operations",
@@ -181,6 +187,7 @@ function goToSummary() {
                 id="newsTrading"
                 v-model="standardOrNewsTrading"
                 :value="'News'"
+                @change="goToAddOperationNews"
               />
               <label class="fw-bold form-check-label" for="newsTrading">
                 News
@@ -389,7 +396,7 @@ function goToSummary() {
           </div>
         </div>
         <!-- togliere dinamica e aggiungere massimo target raggiunto e lista news -->
-        <div v-else-if="standardOrNewsTrading == 'News'">
+        <!-- <div v-else-if="standardOrNewsTrading == 'News'">
           <div class="row pt-5">
             <div class="col-md-6">
               <label for="inputData" class="fw-bold form-label">Data</label>
@@ -579,7 +586,7 @@ function goToSummary() {
               </button>
             </div>
           </div>
-        </div>
+        </div> -->
       </form>
     </div>
   </div>

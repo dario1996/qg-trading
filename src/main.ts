@@ -6,6 +6,8 @@ import AddOperation from "./components/tradingOperationStandard/AddOperation.vue
 import OperationDetails from "./components/tradingOperationStandard/OperationDetails.vue";
 import HomeDashboard from "./components/tradingOperationStandard/HomeDashboard.vue";
 import EditOperation from "./components/tradingOperationStandard/EditOperation.vue";
+import AddOperationNews from "./components/tradingOperationNews/AddOperationNews.vue";
+import OperationsSummaryNews from "./components/tradingOperationNews/OperationSummaryNews.vue";
 import App from "./App.vue";
 
 const router = createRouter({
@@ -14,6 +16,8 @@ const router = createRouter({
     { path: "/", redirect: "/dashboard" },
     { path: "/dashboard", component: HomeDashboard },
     { path: "/operation/add", component: AddOperation },
+    { path: "/operation/add/news", component: AddOperationNews },
+    { path: "/operations/news", component: OperationsSummaryNews },
     { path: "/operations", component: OperationsSummary },
     {
       path: "/operation/details/:id",

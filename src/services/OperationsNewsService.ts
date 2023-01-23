@@ -3,9 +3,9 @@ import axios from "axios";
 const GET_OPERATION_LIST_API_BASE_URL = "http://localhost:8080/api/operations/news";
 const ADD_OPERATION_API_BASE_URL = "http://localhost:8080/api/add-operation/news";
 const DELETE_OPERATION_API_BASE_URL =
-  "http://localhost:8080/api/delete-operation";
-const GET_OPERATION_API_BASE_URL = "http://localhost:8080/api/operation";
-const EDIT_OPERATION_API_BASE_URL = "http://localhost:8080/api/operation";
+  "http://localhost:8080/api/delete-operation/news";
+const GET_OPERATION_API_BASE_URL = "http://localhost:8080/api/operation/news";
+const EDIT_OPERATION_API_BASE_URL = "http://localhost:8080/api/operation/news";
 
 class OperationNewsService {
   getOperations() {
