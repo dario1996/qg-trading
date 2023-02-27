@@ -15,8 +15,9 @@ const operationList = ref<OperationList[]>([]);
 const tableHeader = ref({
   id: "Id",
   data: "Data e Ora",
-  rating: "Rating",
+  news: "News",
   esitoOperazione: "Esito",
+  maxTargetReached: "Max target raggiunto",
   puntiDiTarget: "Punti di Target",
   puntiDiStop: "Punti di Stop",
   rischioRendimento: "Rischio/Rendimento",
@@ -45,10 +46,11 @@ interface OperationList {
   data: string;
   time: string;
   result: string;
-  dynamic: string;
+  news: string[];
   targetPoints: number;
   stopPoints: number;
   riskReturn: number;
+  maxTargetReached: number;
 }
 
 onMounted(async () => {
@@ -89,7 +91,7 @@ async function deleteOperation(opId: number) {
 //FILTRI TABELLA
 function filterOperationsTable() {
   let filterOperationResult = filteredData.value.targetOrStopRadio;
-  let filterOperationDynamic = filteredData.value.dynamicRadio;
+  //let filterOperationDynamic = filteredData.value.dynamicRadio;
   let startRiskResult = filteredData.value.startRiskResult;
   let endRiskResult = filteredData.value.endRiskResult;
   let startTargetPoints = filteredData.value.startTargetPoints;
@@ -137,11 +139,11 @@ function filterOperationsTable() {
     } else {
       operationList.value;
     }
-    operationList.value = filterOperationDynamic
-      ? operationList.value.filter(
-          (el) => el.dynamic === filterOperationDynamic
-        )
-      : operationList.value;
+    // operationList.value = filterOperationDynamic
+    //   ? operationList.value.filter(
+    //       (el) => el.dynamic === filterOperationDynamic
+    //     )
+    //   : operationList.value;
     operationList.value =
       startTime && endTime
         ? operationList.value.filter(
@@ -755,9 +757,12 @@ function goToEdit(opId: number) {
           <tr>
             <th scope="col">{{ tableHeader.id }}</th>
             <th scope="col">{{ tableHeader.data }}</th>
-            <th scope="col">{{ tableHeader.rating }}</th>
+            <th scope="col">{{ tableHeader.news }}</th>
             <th class="text-center" scope="col">
               {{ tableHeader.esitoOperazione }}
+            </th>
+            <th class="text-center" scope="col">
+              {{ tableHeader.maxTargetReached }}
             </th>
             <th class="text-center" scope="col">
               {{ tableHeader.puntiDiTarget }}
@@ -778,7 +783,12 @@ function goToEdit(opId: number) {
           <tr v-for="operation in operationPagedList" :key="operation.id">
             <th scope="row">{{ operation.id }}</th>
             <td>{{ convertDate(operation.data) + " - " + operation.time }}</td>
-            <td>{{ operation.dynamic }}</td>
+            <td>
+              <span v-for="(news, index) in operation.news" :key="index">
+                {{ news.replace(/\[|\]/g, '') }}
+                <!-- <span v-if="index !== operation.news.length - 1">, </span> -->
+              </span>
+            </td>
             <!-- <td>{{ operation.result }}</td> -->
             <td class="text-center">
               <i
@@ -790,6 +800,7 @@ function goToEdit(opId: number) {
                 class="bi bi-x-circle-fill fs-3 text-danger"
               ></i>
             </td>
+            <td class="text-center">{{ operation.maxTargetReached }}</td>
             <td class="text-center">{{ operation.targetPoints }}</td>
             <td class="text-center">{{ operation.stopPoints }}</td>
             <td class="text-center">{{ operation.riskReturn }}</td>

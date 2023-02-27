@@ -207,22 +207,27 @@ function goToAddOperation() {
               />
             </div>
             <div class="col-md-4">
-              <label
-                for="news"
-                class="fw-bold form-label"
-                aria-label="Default select example"
-                >News</label
-              >
-              <select
-                class="form-select"
-                id="news"
-                v-model="selectedNews"
-                multiple
-              >
-                <option v-for="news in newsList" :key="news">{{ news }}</option>
-              </select>
-              <p v-if="selectedNews.length > 0" class="fw-light">
-                {{ "News selezionate: " + selectedNews }}
+              <div class="form-group news-select">
+                <label class="fw-bold pb-2" for="news-select">News:</label>
+                <div
+                  class="form-check"
+                  v-for="(news, index) in newsList"
+                  :key="index"
+                >
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    :id="'news' + index"
+                    :value="news"
+                    v-model="selectedNews"
+                  />
+                  <label class="form-check-label" :for="'news' + index">{{
+                    news
+                  }}</label>
+                </div>
+              </div>
+              <p v-if="selectedNews.length > 0" class="fw-light pt-3">
+                {{ "News selezionate: " + selectedNews.join(', ') }}
               </p>
             </div>
           </div>
@@ -356,5 +361,9 @@ function goToAddOperation() {
   padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+}
+.news-select {
+  max-height: 200px;
+  overflow-y: auto;
 }
 </style>
