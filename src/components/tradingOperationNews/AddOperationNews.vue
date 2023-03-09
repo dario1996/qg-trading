@@ -41,7 +41,7 @@ const newsList = ref([
 ]);
 
 onMounted(() => {
-  emptyField();
+  //emptyField();
 });
 
 function emptyField() {
@@ -53,6 +53,9 @@ function emptyField() {
   maxTargetReached.value = undefined;
   commentsNews.value = "";
   selectedNews.value = [];
+
+  const inputElement = document.getElementById("formFile") as HTMLInputElement;
+  inputElement.value = "";
 }
 
 function saveOperation() {
@@ -90,6 +93,7 @@ async function checkFieldEmpty() {
       data: operationDataNews.value,
       time: operationTimeNews.value,
       result: targetOrStopRadioNews.value === "1" ? "Target" : "Stop",
+      maxTargetReached: maxTargetReached.value,
       news: selectedNews.value,
       targetPoints: targetPonitsNews.value,
       stopPoints: stopPonitsNews.value,
@@ -227,7 +231,7 @@ function goToAddOperation() {
                 </div>
               </div>
               <p v-if="selectedNews.length > 0" class="fw-light pt-3">
-                {{ "News selezionate: " + selectedNews.join(', ') }}
+                {{ "News selezionate: " + selectedNews.join(", ") }}
               </p>
             </div>
           </div>

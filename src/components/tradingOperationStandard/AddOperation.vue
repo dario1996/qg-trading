@@ -43,7 +43,9 @@ const image = ref<unknown>("");
 // ]);
 
 onMounted(() => {
-  emptyField();
+  // const inputElement = document.getElementById('formFile') as HTMLInputElement;
+  // inputElement.value = '';
+  // emptyField();
 });
 
 function saveOperation() {
@@ -107,6 +109,9 @@ function emptyField() {
   targetPonits.value = undefined;
   stopPonits.value = undefined;
   comments.value = "";
+
+  const inputElement = document.getElementById("formFile") as HTMLInputElement;
+  inputElement.value = "";
 }
 
 async function onFileChange(e: any) {
@@ -338,6 +343,7 @@ function goToSummary() {
                   type="file"
                   id="formFile"
                   @change="onFileChange"
+                  ref="file"
                 />
               </div>
             </div>
