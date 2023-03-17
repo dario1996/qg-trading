@@ -8,6 +8,7 @@ const standardOrNewsTrading = ref("");
 const alertNoDataForFilters = ref(false);
 const tableVisibility = ref(false);
 const alertTableEmpty = ref(false);
+const errorWebApi = ref(false);
 const isLoading = ref(false);
 const operationPorPage = ref<number>(25);
 const actualPage = ref<number>(1);
@@ -59,20 +60,25 @@ onMounted(async () => {
 });
 
 async function getOperations() {
-  await OperationsService.getOperations().then((response) => {
-    isLoading.value = true;
-    operationList.value = response.data;
-    getPagesData(1);
-    setTimeout(() => {
-      isLoading.value = false;
-      if (response.data.length !== 0) {
-        tableVisibility.value = true;
-      } else {
-        tableVisibility.value = false;
+  isLoading.value = true;
+  await OperationsService.getOperations()
+    .then((response) => {
+      operationList.value = response.data;
+      getPagesData(1);
+    })
+    .catch((error) => {
+      tableVisibility.value = false;
+      if (operationList.value && operationList.value.length !== 0) {
         alertTableEmpty.value = true;
+      } else {
+        errorWebApi.value = true;
+        console.log(error.response.status);
       }
-    }, 750);
-  });
+    })
+    .finally(() => {
+      isLoading.value = false;
+      tableVisibility.value = true;
+    });
 }
 
 async function deleteOperation(opId: number) {
@@ -294,7 +300,7 @@ function goToSummaryNews() {
       Sommario delle Operazioni
     </h3>
     <div class="card-body">
-      <div class="row pt-5">
+      <div v-if="!isLoading" class="row pt-5">
         <div class="col-md-10 d-flex align-self-end justify-content-start">
           <h5 class="fw-bold">
             Per quale tipo di operazione si desidera guardare il sommario?
@@ -333,13 +339,13 @@ function goToSummaryNews() {
       </div>
       <div v-if="standardOrNewsTrading == 'Standard'">
         <h5
-          v-if="!isLoading && !alertTableEmpty"
+          v-if="!isLoading && !alertTableEmpty && !errorWebApi"
           class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
         >
           Filtri
         </h5>
         <div
-          v-if="!isLoading && !alertTableEmpty"
+          v-if="!isLoading && !alertTableEmpty && !errorWebApi"
           class="accordion pb-3"
           id="accordionPanelsStayOpenExample"
         >
@@ -764,7 +770,7 @@ function goToSummaryNews() {
             </div>
           </div>
         </div>
-        <div v-if="!isLoading && !alertTableEmpty" class="pb-5 row">
+        <div v-if="!isLoading && !alertTableEmpty && !errorWebApi" class="pb-5 row">
           <div class="mt-0 pt-3 d-flex justify-content-center">
             <button
               type="button"
@@ -798,8 +804,24 @@ function goToSummaryNews() {
           </svg>
           <div>Nessuna operazione presente nel sommario</div>
         </div>
+        <div
+          v-if="errorWebApi"
+          class="alert alert-danger d-flex align-items-center mt-5"
+          role="alert"
+        >
+          <svg
+            class="bi flex-shrink-0 me-2"
+            width="24"
+            height="24"
+            role="img"
+            aria-label="Danger:"
+          >
+            <use xlink:href="#exclamation-triangle-fill" />
+          </svg>
+          <div>ERRORE GENERICO, CONTATTARE IL SUPPORTO</div>
+        </div>
         <table
-          v-if="tableVisibility && !isLoading"
+          v-if="tableVisibility && !isLoading && !errorWebApi"
           class="table table-responsive align-middle"
         >
           <thead>
@@ -879,7 +901,7 @@ function goToSummaryNews() {
           </tbody>
         </table>
         <nav
-          v-if="!isLoading && !alertTableEmpty && !alertNoDataForFilters"
+          v-if="!isLoading && !alertTableEmpty && !alertNoDataForFilters && !errorWebApi"
           aria-label="Page navigation example"
         >
           <ul class="pagination justify-content-center pt-3">
@@ -902,14 +924,14 @@ function goToSummaryNews() {
         </nav>
         <div class="d-flex justify-content-center">
           <div
-            v-if="isLoading === true"
-            class="spinner-border text-primary"
+            v-if="isLoading"
+            class="spinner-border text-primary mt-5"
             style="width: 3rem; height: 3rem"
           >
             <span class="visually-hidden">Loading...</span>
           </div>
         </div>
-        <div v-if="!alertTableEmpty && !alertNoDataForFilters" class="row pt-3">
+        <div v-if="!alertTableEmpty && !alertNoDataForFilters && !errorWebApi" class="row pt-3">
           <div class="col-md-3">
             <!-- <label class="fw-bold">Punti: {{getTotalTargetPointsPorPage()}}</label> -->
             <h5
@@ -963,7 +985,7 @@ function goToSummaryNews() {
         <div class="row">
           <div class="mt-0 pt-3 d-flex justify-content-center">
             <button
-              v-if="!isLoading"
+              v-if="!isLoading && !errorWebApi"
               type="button"
               class="fw-bold ms-3 btn btn-outline-primary"
               @click="goToAddOperation"
