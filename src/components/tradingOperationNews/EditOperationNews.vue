@@ -1,9 +1,11 @@
+<!-- eslint-disable no-unused-vars -->
 <script setup lang="ts">
 import OperationsNewsService from "@/services/OperationsNewsService";
-import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
+const route = useRoute();
 const targetOrStopRadioNews = ref("");
 const operationDataNews = ref("");
 const operationTimeNews = ref("");
@@ -11,11 +13,11 @@ const maxTargetReached = ref<number>();
 const selectedNews = ref<string[]>([]);
 const targetPonitsNews = ref<number>();
 const stopPonitsNews = ref<number>();
-const commentsNews = ref("");
-const imageNews = ref<unknown>("");
-const riskReturn = ref<number>(0);
 const alertSaveSucces = ref(false);
 const alertEmptyField = ref(false);
+const operationToEdit = ref<OperationToEdit>();
+const commentsNews = ref("");
+const image = ref<unknown>("");
 const newsList = ref([
   "Decisioni tassi d’interesse della FED",
   "Vendita al dettaglio dei beni essenziali",
@@ -40,37 +42,66 @@ const newsList = ref([
   "IPC",
 ]);
 
+interface OperationToEdit {
+  data: string;
+  time: string;
+  result: string;
+  maxTargetReached: number;
+  news: string;
+  stopPoints: number;
+  targetPoints: number;
+  comments: string;
+  id: number;
+  image: string;
+}
+
 onMounted(() => {
-  //emptyField();
+  getOperation();
 });
 
-function emptyField() {
-  targetOrStopRadioNews.value = "";
-  operationDataNews.value = "";
-  operationTimeNews.value = "";
-  targetPonitsNews.value = undefined;
-  stopPonitsNews.value = undefined;
-  maxTargetReached.value = undefined;
-  commentsNews.value = "";
-  selectedNews.value = [];
+async function getOperation() {
+  let opId: string | number = route.params.id as string;
+  await OperationsNewsService.getOperation(parseInt(opId)).then((response) => {
+    if (response.data) {
+      operationToEdit.value = response.data;
+    }
 
-  const inputElement = document.getElementById("formFile") as HTMLInputElement;
-  inputElement.value = "";
+    operationDataNews.value =
+      operationToEdit.value?.data === undefined
+        ? ""
+        : operationToEdit.value.data;
+    operationTimeNews.value =
+      operationToEdit.value?.time === undefined
+        ? ""
+        : operationToEdit.value.time;
+    targetPonitsNews.value = operationToEdit.value?.targetPoints;
+    commentsNews.value =
+      operationToEdit.value?.comments === undefined
+        ? ""
+        : operationToEdit.value.comments;
+    stopPonitsNews.value = operationToEdit.value?.stopPoints;
+    targetOrStopRadioNews.value =
+      operationToEdit.value?.result === "Target" ? "1" : "0";
+    maxTargetReached.value = operationToEdit.value?.maxTargetReached;
+    selectedNews.value = selectedNews.value.concat(
+      operationToEdit.value?.news
+        .replaceAll("[", "")
+        .replaceAll("]", "")
+        .split(",")
+        .map((el) => {
+          return el.trim();
+        }) ?? []
+    );
+    image.value = operationToEdit.value?.image;
+  });
 }
 
 function saveOperation() {
   checkFieldEmpty();
 
-  if (alertEmptyField.value === false) {
-    emptyField();
-  }
-}
-
-function getRiskReturn() {
-  if (targetPonitsNews.value && stopPonitsNews.value) {
-    riskReturn.value = targetPonitsNews.value / stopPonitsNews.value;
-  }
-  return riskReturn.value.toFixed(1);
+  // if (alertEmptyField.value === false) {
+  //   emptyField();
+  // }
 }
 
 async function checkFieldEmpty() {
@@ -98,20 +129,19 @@ async function checkFieldEmpty() {
       targetPoints: targetPonitsNews.value,
       stopPoints: stopPonitsNews.value,
       comments: commentsNews.value,
-      riskReturn:
-        parseFloat(getRiskReturn()) === null ? 0 : parseFloat(getRiskReturn()),
-      image: imageNews.value,
+      image: image.value,
     };
-
-    await OperationsNewsService.addOperation(saveData);
+    let opId: string | number = route.params.id as string;
+    await OperationsNewsService.editOperation(saveData, parseInt(opId));
     console.log(saveData);
   }
+  //getOperation();
 }
 
 async function onFileChange(e: any) {
   console.log(e.target.files);
   console.log(await getBase64(e.target.files[0]));
-  imageNews.value = await getBase64(e.target.files[0]);
+  image.value = await getBase64(e.target.files[0]);
 }
 
 function getBase64(file: any) {
@@ -129,21 +159,16 @@ function getBase64(file: any) {
 
 function goToSummary() {
   router.push({
-    path: "/operations/news",
-  });
-}
-
-function goToAddOperation() {
-  router.push({
-    path: "/operation/add",
+    path: "/operations",
   });
 }
 </script>
+
 <template>
   <div class="card asd">
     <div class="card-body">
       <h3 class="fw-bold card-title card-title-center">
-        Inserisci Operazione (NEWS)
+        Modifica Operazione (NEWS)
       </h3>
 
       <form @submit.prevent="() => {}">
@@ -231,7 +256,10 @@ function goToAddOperation() {
                 </div>
               </div>
               <p v-if="selectedNews.length > 0" class="fw-light pt-3">
-                {{ "News selezionate: " + selectedNews.join(", ") }}
+                {{ "News selezionate: " + selectedNews }}
+              </p>
+              <p v-else class="fw-light pt-3">
+                {{ "Inserire nuovamente le news!" }}
               </p>
             </div>
           </div>
@@ -331,21 +359,14 @@ function goToAddOperation() {
                 class="fw-bold ms-3 btn btn-outline-success"
                 @click="saveOperation()"
               >
-                Salva operazione news
+                Modifica operazione news
               </button>
               <button
                 type="button"
                 class="fw-bold ms-3 btn btn-outline-primary"
                 @click="goToSummary"
               >
-                Vai al sommario news
-              </button>
-              <button
-                type="button"
-                class="fw-bold ms-3 btn btn-outline-primary"
-                @click="goToAddOperation"
-              >
-                Torna aggiungi operazione
+                Torna al sommario news
               </button>
             </div>
           </div>
@@ -359,8 +380,12 @@ function goToAddOperation() {
 .card-title-center {
   text-align: center;
 }
+.margin-row {
+  margin-top: 20px;
+}
 .asd {
   margin-top: 125px !important;
+  /* margin-bottom: 75px !important; */
   margin: 2rem auto;
   padding: 1rem;
   border-radius: 12px;

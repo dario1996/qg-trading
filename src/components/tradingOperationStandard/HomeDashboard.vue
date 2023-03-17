@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "vue-chartjs";
 import OperationsService from "@/services/OperationsService";
-//import * as chartConfig from './chartConfig.js'
+import OperationsNewsService from "@/services/OperationsNewsService";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -14,14 +14,27 @@ const tableVisibility = ref(false);
 const isLoading = ref(false);
 const lastOperationAdded = ref<OperationList[]>([]);
 const operationList = ref<OperationList[]>([]);
-const isMounted = ref<boolean>(false);
-const rateWin = ref();
+const operationListNews = ref<OperationListNews[]>([]);
+const isMountedStandard = ref<boolean>(false);
+const isMountedNews = ref<boolean>(false);
+const rateWinStandard = ref();
+const rateWinNews = ref();
 const options = {
   responsive: true,
   maintainAspectRatio: true,
 };
 
 const data = {
+  labels: ["Target", "Stop"],
+  datasets: [
+    {
+      backgroundColor: ["#41B883", "#DD1B16"],
+      data: [] as number[],
+    },
+  ],
+};
+
+const dataNews = {
   labels: ["Target", "Stop"],
   datasets: [
     {
@@ -43,10 +56,6 @@ const tableHeader = ref({
   detail: "Dettaglio",
 });
 
-// const operationList = ref([
-//   { id: "1", data: "13/10/2022", rating: "Rating 4", stop: "Si", target: "No" },
-// ]);
-
 interface OperationList {
   id: number;
   data: string;
@@ -58,31 +67,24 @@ interface OperationList {
   riskReturn: number;
 }
 
+interface OperationListNews {
+  id: number;
+  data: string;
+  time: string;
+  result: string;
+  news: string[];
+  targetPoints: number;
+  stopPoints: number;
+  riskReturn: number;
+  maxTargetReached: number;
+}
+
 onMounted(async () => {
-  getOperations();
-  // //Get the button
-  // let mybutton = document.getElementById("btn-back-to-top");
-
-  // // When the user scrolls down 20px from the top of the document, show the button
-  // window.onscroll = function () {
-  //   scrollFunction();
-  // };
-
-  // function scrollFunction() {
-  //   if (
-  //     document.body.scrollTop > 20 ||
-  //     document.documentElement.scrollTop > 20
-  //   ) {
-  //     if (mybutton) mybutton.style.display = "block";
-  //   } else {
-  //     if (mybutton) mybutton.style.display = "none";
-  //   }
-  // }
-  //console.log(data);
-  //console.log(data.datasets[0].data);
+  getOperationsStandard();
+  getOperationsNews();
 });
 
-async function getOperations() {
+async function getOperationsStandard() {
   await OperationsService.getOperations().then((response) => {
     isLoading.value = true;
     tableVisibility.value = false;
@@ -98,12 +100,33 @@ async function getOperations() {
         alertTableEmpty.value = true;
       }
     }, 750);
-    isMounted.value = true;
-    getWinRate();
+    isMountedStandard.value = true;
+    getWinRateStandard();
   });
 }
 
-function getWinRate() {
+async function getOperationsNews() {
+  await OperationsNewsService.getOperations().then((response) => {
+    isLoading.value = true;
+    tableVisibility.value = false;
+    operationListNews.value = response.data;
+    //operationPagedList.value = operationList.value;
+    setTimeout(() => {
+      isLoading.value = false;
+      if (response.data.length !== 0) {
+        //lastOperationAdded.value = operationListNews.value.slice(-1);
+        tableVisibility.value = true;
+      } else {
+        tableVisibility.value = false;
+        alertTableEmpty.value = true;
+      }
+    }, 750);
+    isMountedNews.value = true;
+    getWinRateNews();
+  });
+}
+
+function getWinRateStandard() {
   //getOperations();
   let targetCount = 0;
   //let stopCount = 0;
@@ -117,10 +140,27 @@ function getWinRate() {
   winRate = (targetCount / operationList.value.length) * 100;
   data.datasets[0].data.push(winRate, 100 - winRate);
   console.log(data.datasets[0]);
-  rateWin.value = parseInt(winRate.toFixed());
+  rateWinStandard.value = parseInt(winRate.toFixed());
 }
 
-function getTotalnetPoints() {
+function getWinRateNews() {
+  //getOperations();
+  let targetCount = 0;
+  //let stopCount = 0;
+  let winRate = 0;
+  operationListNews.value.forEach((el) => {
+    if (el.result == "Target") {
+      targetCount = targetCount + 1;
+    }
+  });
+  //console.log(operationList.value);
+  winRate = (targetCount / operationListNews.value.length) * 100;
+  dataNews.datasets[0].data.push(winRate, 100 - winRate);
+  console.log(dataNews.datasets[0]);
+  rateWinNews.value = parseInt(winRate.toFixed());
+}
+
+function getTotalnetPointsStandard() {
   let totalTargetPoints = 0;
   let totalStopPoints = 0;
   operationList.value
@@ -129,6 +169,22 @@ function getTotalnetPoints() {
       totalTargetPoints = totalTargetPoints + el.targetPoints;
     });
   operationList.value
+    .filter((el) => el.result == "Stop")
+    .forEach((el) => {
+      totalStopPoints = totalStopPoints + el.stopPoints;
+    });
+  return (totalTargetPoints - totalStopPoints).toFixed(1);
+}
+
+function getTotalnetPointsNews() {
+  let totalTargetPoints = 0;
+  let totalStopPoints = 0;
+  operationListNews.value
+    .filter((el) => el.result == "Target")
+    .forEach((el) => {
+      totalTargetPoints = totalTargetPoints + el.targetPoints;
+    });
+  operationListNews.value
     .filter((el) => el.result == "Stop")
     .forEach((el) => {
       totalStopPoints = totalStopPoints + el.stopPoints;
@@ -187,26 +243,41 @@ function goToDetails(opId: number) {
           class="bi bi-graph-up text-info text-center"
           style="font-size: 100px"
         ></i> -->
-        <div class="d-flex justify-content-center">
-          <Doughnut
-            v-if="isMounted"
-            id="chart"
-            class="chart justify-content-center"
-            :data="data"
-            :options="options"
-          ></Doughnut>
+        <div class="row">
+          <div class="col-6 d-flex justify-content-center">
+            <Doughnut
+              v-if="isMountedStandard"
+              id="chart"
+              class="chart justify-content-center"
+              :data="data"
+              :options="options"
+            ></Doughnut>
+          </div>
+          <div class="col-6 d-flex justify-content-center">
+            <Doughnut
+              v-if="isMountedNews"
+              id="chartNews"
+              class="chart justify-content-center"
+              :data="dataNews"
+              :options="options"
+            ></Doughnut>
+          </div>
         </div>
-
         <!-- <img src="../assets/back_img_3.png" class="card-img-top img" alt="..."> -->
         <div class="card-body">
-          <h5 class="card-title">Grafico di riepilogo</h5>
+          <h5 class="card-title">Grafici di riepilogo</h5>
           <p class="card-text">
             Grafico che rappresenta il win rate - percentuale di vincita
             (rapporto tra operazioni chiuse a target e operazioni chiuse a
             stop).
           </p>
-          <div class="d-flex justify-content-center">
-            <h1 class="pt-3">{{ rateWin }}%</h1>
+          <div class="row">
+            <div class="col-6 d-flex justify-content-center">
+              <h1 class="pt-3">{{ "Standard: " + rateWinStandard + "%" }}</h1>
+            </div>
+            <div class="col-6 d-flex justify-content-center">
+              <h1 class="pt-3">{{ "News: " + rateWinNews + "%" }}</h1>
+            </div>
           </div>
         </div>
       </div>
@@ -224,9 +295,14 @@ function goToDetails(opId: number) {
             Questo valore indica la differenza tra i punti di target ed i punti
             di stop.
           </p>
-          <h1 class="text-warning text-center pt-5">
-            {{ getTotalnetPoints() }} Punti
-          </h1>
+          <div class="row">
+            <h1 class="col-6 text-warning text-center pt-5">
+              {{ "Standard: " + getTotalnetPointsStandard() }}
+            </h1>
+            <h1 class="col-6 text-warning text-center pt-5">
+              {{ "News: " + getTotalnetPointsNews() }}
+            </h1>
+          </div>
         </div>
       </div>
     </div>

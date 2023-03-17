@@ -276,9 +276,9 @@ function goToDetails(opId: number) {
   });
 }
 
-function goToEdit(opId: number) {
+function goToEditNews(opId: number) {
   router.push({
-    name: "Edit",
+    name: "EditNews",
     params: {
       id: opId,
     },
@@ -810,7 +810,7 @@ function goToEdit(opId: number) {
               <button
                 type="button"
                 class="mx-1 btn btn-outline-primary"
-                @click="goToEdit(operation.id)"
+                @click="goToEditNews(operation.id)"
               >
                 <i class="bi bi-pencil-square"></i>
               </button>

@@ -150,7 +150,7 @@ function goToSummary() {
 <template>
   <div class="card asd">
     <div class="card-body">
-      <h3 class="fw-bold card-title card-title-center">Modifica Operazione</h3>
+      <h3 class="fw-bold card-title card-title-center">Modifica Operazione (STANDARD)</h3>
       <form @submit.prevent="() => {}">
         <div class="row pt-5">
           <div class="col-md-6">

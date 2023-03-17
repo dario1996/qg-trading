@@ -8,6 +8,7 @@ import HomeDashboard from "./components/tradingOperationStandard/HomeDashboard.v
 import EditOperation from "./components/tradingOperationStandard/EditOperation.vue";
 import AddOperationNews from "./components/tradingOperationNews/AddOperationNews.vue";
 import OperationsSummaryNews from "./components/tradingOperationNews/OperationSummaryNews.vue";
+import EditOperationNews from "./components/tradingOperationNews/EditOperationNews.vue";
 import App from "./App.vue";
 
 const router = createRouter({
@@ -29,6 +30,12 @@ const router = createRouter({
       path: "/operation/edit/:id",
       name: "Edit",
       component: EditOperation,
+      props: true,
+    },
+    {
+      path: "/operation/edit/news/:id",
+      name: "EditNews",
+      component: EditOperationNews,
       props: true,
     },
   ],
