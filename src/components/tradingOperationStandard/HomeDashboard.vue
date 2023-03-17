@@ -13,6 +13,7 @@ const alertTableEmpty = ref(false);
 const tableVisibility = ref(false);
 const isLoading = ref(false);
 const lastOperationAdded = ref<OperationList[]>([]);
+const lastOperationAddedNews = ref<OperationListNews[]>([]);
 const operationList = ref<OperationList[]>([]);
 const operationListNews = ref<OperationListNews[]>([]);
 const isMountedStandard = ref<boolean>(false);
@@ -48,7 +49,9 @@ const tableHeader = ref({
   id: "Id",
   data: "Data e Ora",
   rating: "Rating",
+  news: "News",
   esitoOperazione: "Esito",
+  maxTargetReached: "Massimo target raggiunto",
   puntiDiTarget: "Punti di Target",
   puntiDiStop: "Punti di Stop",
   rischioRendimento: "Rischio/Rendimento",
@@ -114,7 +117,7 @@ async function getOperationsNews() {
     setTimeout(() => {
       isLoading.value = false;
       if (response.data.length !== 0) {
-        //lastOperationAdded.value = operationListNews.value.slice(-1);
+        lastOperationAddedNews.value = operationListNews.value.slice(-1);
         tableVisibility.value = true;
       } else {
         tableVisibility.value = false;
@@ -314,9 +317,9 @@ function goToDetails(opId: number) {
         ></i>
         <!-- <img src="../assets/back_img_3.png" class="card-img-top img" alt="..."> -->
         <div class="card-body pt-3">
-          <h5 class="card-title">Ultima operazione aggiunta</h5>
+          <h5 class="card-title">Ultime operazioni aggiunte</h5>
           <p class="card-text">
-            Questa è l'ultima operazione che è stata aggiunta nel diario del
+            Questa sono le ultime operazioni che sono state aggiunte nel diario del
             trading.
           </p>
           <table
@@ -361,6 +364,77 @@ function goToDetails(opId: number) {
                     class="bi bi-x-circle-fill fs-3 text-danger"
                   ></i>
                 </td>
+                <td class="text-center">{{ operation.targetPoints }}</td>
+                <td class="text-center">{{ operation.stopPoints }}</td>
+                <td class="text-center">{{ operation.riskReturn }}</td>
+                <!-- operation.target -->
+                <!-- <td>{{}}</td> -->
+                <td>
+                  <button
+                    type="button"
+                    class="mx-1 btn btn-outline-success"
+                    @click="goToDetails(operation.id)"
+                  >
+                    <i class="bi bi-arrow-right"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table
+            v-if="tableVisibility && !isLoading"
+            class="table table-responsive align-middle mt-5"
+          >
+            <thead>
+              <tr>
+                <th scope="col">{{ tableHeader.id }}</th>
+                <th scope="col">{{ tableHeader.data }}</th>
+                <th scope="col">{{ tableHeader.news }}</th>
+                <th class="text-center" scope="col">
+                  {{ tableHeader.esitoOperazione }}
+                </th>
+                <th class="text-center" scope="col">
+                  {{ tableHeader.maxTargetReached }}
+                </th>
+                <th class="text-center" scope="col">
+                  {{ tableHeader.puntiDiTarget }}
+                </th>
+                <th class="text-center" scope="col">
+                  {{ tableHeader.puntiDiStop }}
+                </th>
+                <th class="text-center" scope="col">
+                  {{ tableHeader.rischioRendimento }}
+                </th>
+                <th scope="col">{{ tableHeader.detail }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="operation in lastOperationAddedNews"
+                :key="operation.id"
+              >
+                <th scope="row">{{ operation.id }}</th>
+                <td>
+                  {{ convertDate(operation.data) + " - " + operation.time }}
+                </td>
+                <td>
+                  <span v-for="(news, index) in operation.news" :key="index">
+                    {{ news.replace(/\[|\]/g, "") }}
+                    <!-- <span v-if="index !== operation.news.length - 1">, </span> -->
+                  </span>
+                </td>
+                <!-- <td>{{ operation.result }}</td> -->
+                <td class="text-center">
+                  <i
+                    v-if="operation.result == 'Target'"
+                    class="bi bi-check-circle-fill fs-3 text-success"
+                  ></i>
+                  <i
+                    v-if="operation.result == 'Stop'"
+                    class="bi bi-x-circle-fill fs-3 text-danger"
+                  ></i>
+                </td>
+                <td class="text-center">{{ operation.maxTargetReached }}</td>
                 <td class="text-center">{{ operation.targetPoints }}</td>
                 <td class="text-center">{{ operation.stopPoints }}</td>
                 <td class="text-center">{{ operation.riskReturn }}</td>
