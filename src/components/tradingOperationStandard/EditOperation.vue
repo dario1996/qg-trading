@@ -68,10 +68,6 @@ async function getOperation() {
 
 function saveOperation() {
   checkFieldEmpty();
-
-  // if (alertEmptyField.value === false) {
-  //   emptyField();
-  // }
 }
 
 async function checkFieldEmpty() {
@@ -109,17 +105,7 @@ async function checkFieldEmpty() {
     await OperationsService.editOperation(saveData, parseInt(opId));
     console.log(saveData);
   }
-  //getOperation();
 }
-
-// function emptyField() {
-//   targetOrStopRadio.value = "";
-//   operationData.value = "";
-//   dynamicRating.value = "";
-//   targetPonits.value = undefined;
-//   stopPonits.value = undefined;
-//   comments.value = "";
-// }
 
 async function onFileChange(e: any) {
   console.log(e.target.files);

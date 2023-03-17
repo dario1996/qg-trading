@@ -17,36 +17,7 @@ const alertEmptyField = ref(false);
 const comments = ref("");
 const image = ref<unknown>("");
 
-// const selectedNews = ref([]);
-// const newsList = ref([
-//   "Decisioni tassi d’interesse della FED",
-//   "Vendita al dettaglio dei beni essenziali",
-//   "Sussidi di disoccupazione",
-//   "Scorte di Petrolio Greggio",
-//   "PIL",
-//   "Principali ordinativi di beni durevoli",
-//   "Vendite di nuove abitazioni",
-//   "Vendite abitazioni esistenti",
-//   "Indice prezzi spese personali principali",
-//   "Permessi di costruzione",
-//   "Proiezioni economiche FOMC",
-//   "Decisioni FOMC",
-//   "Rapporto sulla fiducia dei consumatori",
-//   "ISM manifatturiero",
-//   "ISM NON manifatturiero",
-//   "Variazione occupazione NON agricola",
-//   "Previsioni EIA sull’energia",
-//   "Indice prezzi di produzione della FED di Filadelfia",
-//   "No farm payroll",
-//   "IPP",
-//   "IPC"
-// ]);
-
-onMounted(() => {
-  // const inputElement = document.getElementById('formFile') as HTMLInputElement;
-  // inputElement.value = '';
-  // emptyField();
-});
+onMounted(() => {});
 
 function saveOperation() {
   checkFieldEmpty();

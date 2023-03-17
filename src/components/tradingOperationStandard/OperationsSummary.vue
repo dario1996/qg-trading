@@ -59,9 +59,7 @@ onMounted(async () => {
 async function getOperations() {
   await OperationsService.getOperations().then((response) => {
     isLoading.value = true;
-    //tableVisibility.value = false;
     operationList.value = response.data;
-    //operationPagedList.value = operationList.value;
     getPagesData(1);
     setTimeout(() => {
       isLoading.value = false;
@@ -79,9 +77,8 @@ async function deleteOperation(opId: number) {
   await OperationsService.deleteOperation(opId).then(() => {
     const index = operationPagedList.value.findIndex(
       (post) => post.id === opId
-    ); // find the post index
+    );
     if (~index)
-      // if the post exists in array
       operationPagedList.value.splice(index, 1); //delete the post
     getOperations();
   });
@@ -237,7 +234,6 @@ function getTotalStopPointsPorPage() {
 
 function getWinRate() {
   let targetCount = 0;
-  //let stopCount = 0;
   let winRate = 0;
   operationList.value.forEach((el) => {
     if (el.result == "Target") {

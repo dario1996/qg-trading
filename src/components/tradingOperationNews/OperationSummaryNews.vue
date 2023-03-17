@@ -60,9 +60,7 @@ onMounted(async () => {
 async function getOperations() {
   await OperationsNewsService.getOperations().then((response) => {
     isLoading.value = true;
-    //tableVisibility.value = false;
     operationList.value = response.data;
-    //operationPagedList.value = operationList.value;
     getPagesData(1);
     setTimeout(() => {
       isLoading.value = false;
@@ -79,11 +77,10 @@ async function getOperations() {
 async function deleteOperation(opId: number) {
   await OperationsNewsService.deleteOperation(opId).then(() => {
     const index = operationPagedList.value.findIndex(
-      (post) => post.id === opId
-    ); // find the post index
+      (op) => op.id === opId
+    );
     if (~index)
-      // if the post exists in array
-      operationPagedList.value.splice(index, 1); //delete the post
+      operationPagedList.value.splice(index, 1);
     getOperations();
   });
 }
@@ -91,7 +88,6 @@ async function deleteOperation(opId: number) {
 //FILTRI TABELLA
 function filterOperationsTable() {
   let filterOperationResult = filteredData.value.targetOrStopRadio;
-  //let filterOperationDynamic = filteredData.value.dynamicRadio;
   let startRiskResult = filteredData.value.startRiskResult;
   let endRiskResult = filteredData.value.endRiskResult;
   let startTargetPoints = filteredData.value.startTargetPoints;
@@ -139,11 +135,6 @@ function filterOperationsTable() {
     } else {
       operationList.value;
     }
-    // operationList.value = filterOperationDynamic
-    //   ? operationList.value.filter(
-    //       (el) => el.dynamic === filterOperationDynamic
-    //     )
-    //   : operationList.value;
     operationList.value =
       startTime && endTime
         ? operationList.value.filter(
@@ -238,7 +229,6 @@ function getTotalStopPointsPorPage() {
 
 function getWinRate() {
   let targetCount = 0;
-  //let stopCount = 0;
   let winRate = 0;
   operationList.value.forEach((el) => {
     if (el.result == "Target") {
@@ -269,7 +259,7 @@ function goToAddOperation() {
 
 function goToDetails(opId: number) {
   router.push({
-    name: "Detail",
+    name: "DetailNews",
     params: {
       id: opId,
     },

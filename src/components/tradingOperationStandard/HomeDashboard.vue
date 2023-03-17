@@ -92,7 +92,6 @@ async function getOperationsStandard() {
     isLoading.value = true;
     tableVisibility.value = false;
     operationList.value = response.data;
-    //operationPagedList.value = operationList.value;
     setTimeout(() => {
       isLoading.value = false;
       if (response.data.length !== 0) {
@@ -113,7 +112,6 @@ async function getOperationsNews() {
     isLoading.value = true;
     tableVisibility.value = false;
     operationListNews.value = response.data;
-    //operationPagedList.value = operationList.value;
     setTimeout(() => {
       isLoading.value = false;
       if (response.data.length !== 0) {
@@ -130,36 +128,28 @@ async function getOperationsNews() {
 }
 
 function getWinRateStandard() {
-  //getOperations();
   let targetCount = 0;
-  //let stopCount = 0;
   let winRate = 0;
   operationList.value.forEach((el) => {
     if (el.result == "Target") {
       targetCount = targetCount + 1;
     }
   });
-  //console.log(operationList.value);
   winRate = (targetCount / operationList.value.length) * 100;
   data.datasets[0].data.push(winRate, 100 - winRate);
-  console.log(data.datasets[0]);
   rateWinStandard.value = parseInt(winRate.toFixed());
 }
 
 function getWinRateNews() {
-  //getOperations();
   let targetCount = 0;
-  //let stopCount = 0;
   let winRate = 0;
   operationListNews.value.forEach((el) => {
     if (el.result == "Target") {
       targetCount = targetCount + 1;
     }
   });
-  //console.log(operationList.value);
   winRate = (targetCount / operationListNews.value.length) * 100;
   dataNews.datasets[0].data.push(winRate, 100 - winRate);
-  console.log(dataNews.datasets[0]);
   rateWinNews.value = parseInt(winRate.toFixed());
 }
 
@@ -215,10 +205,14 @@ function goToDetails(opId: number) {
   });
 }
 
-// When the user clicks on the button, scroll to the top of the document
-// if (mybutton) {
-//   mybutton.addEventListener("click", backToTop);
-// }
+function goToDetailsNews(opId: number) {
+  router.push({
+    name: "DetailNews",
+    params: {
+      id: opId,
+    },
+  });
+}
 </script>
 
 <template>
@@ -319,12 +313,18 @@ function goToDetails(opId: number) {
         <div class="card-body pt-3">
           <h5 class="card-title">Ultime operazioni aggiunte</h5>
           <p class="card-text">
-            Questa sono le ultime operazioni che sono state aggiunte nel diario del
-            trading.
+            Questa sono le ultime operazioni che sono state aggiunte nel diario
+            del trading.
           </p>
+          <h5
+            v-if="tableVisibility && !isLoading"
+            class="card-title fw-light pb-3 pt-3"
+          >
+            Ultima operazione standard
+          </h5>
           <table
             v-if="tableVisibility && !isLoading"
-            class="table table-responsive align-middle mt-5"
+            class="table table-responsive align-middle"
           >
             <thead>
               <tr>
@@ -381,9 +381,15 @@ function goToDetails(opId: number) {
               </tr>
             </tbody>
           </table>
+          <h5
+            v-if="tableVisibility && !isLoading"
+            class="card-title fw-light pb-2 pt-4"
+          >
+            Ultima operazione news
+          </h5>
           <table
             v-if="tableVisibility && !isLoading"
-            class="table table-responsive align-middle mt-5"
+            class="table table-responsive align-middle"
           >
             <thead>
               <tr>
@@ -420,10 +426,8 @@ function goToDetails(opId: number) {
                 <td>
                   <span v-for="(news, index) in operation.news" :key="index">
                     {{ news.replace(/\[|\]/g, "") }}
-                    <!-- <span v-if="index !== operation.news.length - 1">, </span> -->
                   </span>
                 </td>
-                <!-- <td>{{ operation.result }}</td> -->
                 <td class="text-center">
                   <i
                     v-if="operation.result == 'Target'"
@@ -438,13 +442,11 @@ function goToDetails(opId: number) {
                 <td class="text-center">{{ operation.targetPoints }}</td>
                 <td class="text-center">{{ operation.stopPoints }}</td>
                 <td class="text-center">{{ operation.riskReturn }}</td>
-                <!-- operation.target -->
-                <!-- <td>{{}}</td> -->
                 <td>
                   <button
                     type="button"
                     class="mx-1 btn btn-outline-success"
-                    @click="goToDetails(operation.id)"
+                    @click="goToDetailsNews(operation.id)"
                   >
                     <i class="bi bi-arrow-right"></i>
                   </button>
@@ -465,24 +467,6 @@ function goToDetails(opId: number) {
       </div>
     </div>
   </div>
-  <!-- <div class="card margin-row">
-    <h3 class="fw-bold card-title mt-4 mb-4 d-flex justify-content-center">
-      Dashboard
-    </h3>
-    <div class="card-body">
-      <div class="row">
-        <div class="mt-0 pt-3 d-flex justify-content-center">
-          <button
-            type="button"
-            class="fw-bold ms-3 btn btn-outline-primary"
-            @click="goToAddOperation"
-          >
-            Inserisci Operazione
-          </button>
-        </div>
-      </div>
-    </div>
-  </div> -->
 </template>
 <style scoped>
 .card-title-center {

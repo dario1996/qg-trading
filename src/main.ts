@@ -9,6 +9,7 @@ import EditOperation from "./components/tradingOperationStandard/EditOperation.v
 import AddOperationNews from "./components/tradingOperationNews/AddOperationNews.vue";
 import OperationsSummaryNews from "./components/tradingOperationNews/OperationSummaryNews.vue";
 import EditOperationNews from "./components/tradingOperationNews/EditOperationNews.vue";
+import OperationDetailsNews from "./components/tradingOperationNews/OperationDetailsNews.vue"
 import App from "./App.vue";
 
 const router = createRouter({
@@ -38,6 +39,12 @@ const router = createRouter({
       component: EditOperationNews,
       props: true,
     },
+    {
+      path: "/operation/details/news/:id",
+      name: "DetailNews",
+      component: OperationDetailsNews,
+      props: true,
+    },
   ],
 });
 const app = createApp(App);
@@ -45,4 +52,3 @@ const app = createApp(App);
 app.use(router);
 
 app.mount("#app");
-//import "boostrap/dist/js/bootstrap.js";

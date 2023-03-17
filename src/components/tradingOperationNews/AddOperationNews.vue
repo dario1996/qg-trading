@@ -40,9 +40,7 @@ const newsList = ref([
   "IPC",
 ]);
 
-onMounted(() => {
-  //emptyField();
-});
+onMounted(() => {});
 
 function emptyField() {
   targetOrStopRadioNews.value = "";

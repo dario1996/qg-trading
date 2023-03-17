@@ -98,10 +98,6 @@ async function getOperation() {
 
 function saveOperation() {
   checkFieldEmpty();
-
-  // if (alertEmptyField.value === false) {
-  //   emptyField();
-  // }
 }
 
 async function checkFieldEmpty() {
@@ -135,7 +131,6 @@ async function checkFieldEmpty() {
     await OperationsNewsService.editOperation(saveData, parseInt(opId));
     console.log(saveData);
   }
-  //getOperation();
 }
 
 async function onFileChange(e: any) {
