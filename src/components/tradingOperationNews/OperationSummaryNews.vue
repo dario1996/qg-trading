@@ -862,7 +862,7 @@ function goToEditNews(opId: number) {
           <!-- <label class="fw-bold">Punti: {{getTotalTargetPointsPorPage()}}</label> -->
           <h5
             v-if="!isLoading && !alertTableEmpty"
-            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-center"
           >
             Punti di target totali: {{ getTotalTargetPointsPorPage() }}
           </h5>
@@ -870,7 +870,7 @@ function goToEditNews(opId: number) {
         <div class="col-md-3">
           <h5
             v-if="!isLoading && !alertTableEmpty"
-            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-center"
           >
             Punti di stop totali: {{ getTotalStopPointsPorPage() }}
           </h5>
@@ -878,7 +878,7 @@ function goToEditNews(opId: number) {
         <div class="col-md-3">
           <h5
             v-if="!isLoading && !alertTableEmpty"
-            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-center"
           >
             Win rate: {{ getWinRate() }} %
           </h5>
@@ -886,7 +886,7 @@ function goToEditNews(opId: number) {
         <div class="col-md-3">
           <h5
             v-if="!isLoading && !alertTableEmpty"
-            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+            class="fw-bold card-title mt-2 mb-4 d-flex justify-content-center"
           >
             R/R Medio: {{ getMediumRiskReturn() }}
           </h5>

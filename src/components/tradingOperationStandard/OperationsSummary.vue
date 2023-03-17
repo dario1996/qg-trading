@@ -53,7 +53,9 @@ interface OperationList {
 }
 
 onMounted(async () => {
-  getOperations();
+  // if (standardOrNewsTrading.value == "Standard") {
+  //   getOperations();
+  // }
 });
 
 async function getOperations() {
@@ -78,8 +80,7 @@ async function deleteOperation(opId: number) {
     const index = operationPagedList.value.findIndex(
       (post) => post.id === opId
     );
-    if (~index)
-      operationPagedList.value.splice(index, 1); //delete the post
+    if (~index) operationPagedList.value.splice(index, 1); //delete the post
     getOperations();
   });
 }
@@ -308,6 +309,7 @@ function goToSummaryNews() {
               id="standardTrading"
               v-model="standardOrNewsTrading"
               :value="'Standard'"
+              @change="getOperations"
             />
             <label class="fw-bold form-check-label" for="standardTrading">
               Standard
@@ -912,7 +914,7 @@ function goToSummaryNews() {
             <!-- <label class="fw-bold">Punti: {{getTotalTargetPointsPorPage()}}</label> -->
             <h5
               v-if="!isLoading && !alertTableEmpty"
-              class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+              class="fw-bold card-title mt-2 mb-4 d-flex justify-content-center"
             >
               Punti di target totali: {{ getTotalTargetPointsPorPage() }}
             </h5>
@@ -920,7 +922,7 @@ function goToSummaryNews() {
           <div class="col-md-3">
             <h5
               v-if="!isLoading && !alertTableEmpty"
-              class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+              class="fw-bold card-title mt-2 mb-4 d-flex justify-content-center"
             >
               Punti di stop totali: {{ getTotalStopPointsPorPage() }}
             </h5>
@@ -928,7 +930,7 @@ function goToSummaryNews() {
           <div class="col-md-3">
             <h5
               v-if="!isLoading && !alertTableEmpty"
-              class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+              class="fw-bold card-title mt-2 mb-4 d-flex justify-content-center"
             >
               Win rate: {{ getWinRate() }} %
             </h5>
@@ -936,7 +938,7 @@ function goToSummaryNews() {
           <div class="col-md-3">
             <h5
               v-if="!isLoading && !alertTableEmpty"
-              class="fw-bold card-title mt-2 mb-4 d-flex justify-content-start"
+              class="fw-bold card-title mt-2 mb-4 d-flex justify-content-center"
             >
               R/R Medio: {{ getMediumRiskReturn() }}
             </h5>
