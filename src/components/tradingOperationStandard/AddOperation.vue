@@ -70,15 +70,17 @@ async function checkFieldEmpty() {
     isLoading.value = true;
     await OperationsService.addOperation(saveData)
       .then(() => {
-        alertSaveSucces.value = true;
-        emptyField();
+        if (!alertSaveSucces.value) {
+          alertSaveSucces.value = true;
+          emptyField();
+        }
       })
       .catch((error) => {
         errorWebApi.value = true;
-        if (error.request.status === 0) {
+        if (error.response.status === 0) {
           errorWebApiMessage.value = "Errore: il server non risponde.";
         } else {
-          switch (error.request.status) {
+          switch (error.response.status) {
             case 400:
               errorWebApiMessage.value = "Errore 400: Richiesta non valida.";
               break;
