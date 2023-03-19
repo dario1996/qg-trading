@@ -92,74 +92,121 @@ async function deleteOperation(opId: number) {
 }
 
 //FILTRI TABELLA
+// function filterOperationsTable() {
+//   let filterOperationResult = filteredData.value.targetOrStopRadio;
+//   let filterOperationDynamic = filteredData.value.dynamicRadio;
+//   let startRiskResult = filteredData.value.startRiskResult;
+//   let endRiskResult = filteredData.value.endRiskResult;
+//   let startTargetPoints = filteredData.value.startTargetPoints;
+//   let endTargetPoints = filteredData.value.endTargetPoints;
+//   let startStopPoints = filteredData.value.startStopPoints;
+//   let endStopPoints = filteredData.value.endStopPoints;
+//   let startDate = localizeDate(filteredData.value.startDate);
+//   let endDate = localizeDate(filteredData.value.endDate);
+//   let startTime = filteredData.value.startTime;
+//   let endTime = filteredData.value.endTime;
+//   if (operationList.value) {
+//     operationList.value = filterOperationResult
+//       ? operationList.value.filter((el) => el.result === filterOperationResult)
+//       : operationList.value;
+//     operationList.value =
+//       startDate && endDate
+//         ? operationList.value.filter(
+//             (el) =>
+//               startDate <= new Date(localizeDate(el.data)) &&
+//               new Date(localizeDate(el.data)) <= endDate
+//           )
+//         : operationList.value;
+//     if (startRiskResult != 0 && endRiskResult != 0) {
+//       operationList.value = operationList.value.filter(
+//         (el) =>
+//           startRiskResult <= el.riskReturn && el.riskReturn <= endRiskResult
+//       );
+//     } else {
+//       operationList.value;
+//     }
+//     if (endTargetPoints != 0) {
+//       operationList.value = operationList.value.filter(
+//         (el) =>
+//           startTargetPoints <= el.targetPoints &&
+//           el.targetPoints <= endTargetPoints
+//       );
+//     } else {
+//       operationList.value;
+//     }
+//     if (endStopPoints != 0) {
+//       operationList.value = operationList.value.filter(
+//         (el) =>
+//           startStopPoints <= el.stopPoints && el.stopPoints <= endStopPoints
+//       );
+//     } else {
+//       operationList.value;
+//     }
+//     operationList.value = filterOperationDynamic
+//       ? operationList.value.filter(
+//           (el) => el.dynamic === filterOperationDynamic
+//         )
+//       : operationList.value;
+//     operationList.value =
+//       startTime && endTime
+//         ? operationList.value.filter(
+//             (el) => startTime <= el.time && el.time <= endTime
+//           )
+//         : operationList.value;
+//     getPagesData(1);
+//   }
+//   console.log(operationList.value);
+//   if (operationPagedList.value.length === 0) {
+//     tableVisibility.value = false;
+//     alertNoDataForFilters.value = true;
+//   }
+// }
+
 function filterOperationsTable() {
-  let filterOperationResult = filteredData.value.targetOrStopRadio;
-  let filterOperationDynamic = filteredData.value.dynamicRadio;
-  let startRiskResult = filteredData.value.startRiskResult;
-  let endRiskResult = filteredData.value.endRiskResult;
-  let startTargetPoints = filteredData.value.startTargetPoints;
-  let endTargetPoints = filteredData.value.endTargetPoints;
-  let startStopPoints = filteredData.value.startStopPoints;
-  let endStopPoints = filteredData.value.endStopPoints;
-  let startDate = localizeDate(filteredData.value.startDate);
-  let endDate = localizeDate(filteredData.value.endDate);
-  let startTime = filteredData.value.startTime;
-  let endTime = filteredData.value.endTime;
-  if (operationList.value) {
-    operationList.value = filterOperationResult
-      ? operationList.value.filter((el) => el.result === filterOperationResult)
-      : operationList.value;
-    operationList.value =
-      startDate && endDate
-        ? operationList.value.filter(
-            (el) =>
-              startDate <= new Date(localizeDate(el.data)) &&
-              new Date(localizeDate(el.data)) <= endDate
-          )
-        : operationList.value;
-    if (startRiskResult != 0 && endRiskResult != 0) {
-      operationList.value = operationList.value.filter(
-        (el) =>
-          startRiskResult <= el.riskReturn && el.riskReturn <= endRiskResult
-      );
-    } else {
-      operationList.value;
-    }
-    if (endTargetPoints != 0) {
-      operationList.value = operationList.value.filter(
-        (el) =>
-          startTargetPoints <= el.targetPoints &&
-          el.targetPoints <= endTargetPoints
-      );
-    } else {
-      operationList.value;
-    }
-    if (endStopPoints != 0) {
-      operationList.value = operationList.value.filter(
-        (el) =>
-          startStopPoints <= el.stopPoints && el.stopPoints <= endStopPoints
-      );
-    } else {
-      operationList.value;
-    }
-    operationList.value = filterOperationDynamic
-      ? operationList.value.filter(
-          (el) => el.dynamic === filterOperationDynamic
-        )
-      : operationList.value;
-    operationList.value =
-      startTime && endTime
-        ? operationList.value.filter(
-            (el) => startTime <= el.time && el.time <= endTime
-          )
-        : operationList.value;
-    getPagesData(1);
-  }
-  console.log(operationList.value);
+  const operationListValue = operationList.value;
+  if (!operationListValue) return;
+
+  const filterOperationResult = filteredData.value.targetOrStopRadio;
+  const filterOperationDynamic = filteredData.value.dynamicRadio;
+  const startRiskResult = filteredData.value.startRiskResult;
+  const endRiskResult = filteredData.value.endRiskResult;
+  const startTargetPoints = filteredData.value.startTargetPoints;
+  const endTargetPoints = filteredData.value.endTargetPoints;
+  const startStopPoints = filteredData.value.startStopPoints;
+  const endStopPoints = filteredData.value.endStopPoints;
+  const startDate = localizeDate(filteredData.value.startDate);
+  const endDate = localizeDate(filteredData.value.endDate);
+  const startTime = filteredData.value.startTime;
+  const endTime = filteredData.value.endTime;
+
+  const filteredList = operationListValue.filter((el) => {
+    const data = new Date(localizeDate(el.data));
+    return (
+      (!filterOperationResult || el.result === filterOperationResult) &&
+      (!startDate || !endDate || (startDate <= data && data <= endDate)) &&
+      ((startRiskResult === 0 && endRiskResult === 0) ||
+        (startRiskResult <= el.riskReturn && el.riskReturn <= endRiskResult)) &&
+      (endTargetPoints === 0 ||
+        (startTargetPoints <= el.targetPoints &&
+          el.targetPoints <= endTargetPoints)) &&
+      (endStopPoints === 0 ||
+        (startStopPoints <= el.stopPoints && el.stopPoints <= endStopPoints)) &&
+      (!filterOperationDynamic || el.dynamic === filterOperationDynamic) &&
+      (!startTime || !endTime || (startTime <= el.time && el.time <= endTime))
+    );
+  });
+
+  operationList.value = filteredList;
+  getPagesData(1);
+
   if (operationPagedList.value.length === 0) {
     tableVisibility.value = false;
     alertNoDataForFilters.value = true;
+  } else if (alertNoDataForFilters.value) {
+    alertNoDataForFilters.value = false;
   }
+
+  console.log(operationList.value);
 }
 
 //CANCELLA FILTRI
@@ -770,7 +817,10 @@ function goToSummaryNews() {
             </div>
           </div>
         </div>
-        <div v-if="!isLoading && !alertTableEmpty && !errorWebApi" class="pb-5 row">
+        <div
+          v-if="!isLoading && !alertTableEmpty && !errorWebApi"
+          class="pb-5 row"
+        >
           <div class="mt-0 pt-3 d-flex justify-content-center">
             <button
               type="button"
@@ -901,7 +951,12 @@ function goToSummaryNews() {
           </tbody>
         </table>
         <nav
-          v-if="!isLoading && !alertTableEmpty && !alertNoDataForFilters && !errorWebApi"
+          v-if="
+            !isLoading &&
+            !alertTableEmpty &&
+            !alertNoDataForFilters &&
+            !errorWebApi
+          "
           aria-label="Page navigation example"
         >
           <ul class="pagination justify-content-center pt-3">
@@ -931,7 +986,10 @@ function goToSummaryNews() {
             <span class="visually-hidden">Loading...</span>
           </div>
         </div>
-        <div v-if="!alertTableEmpty && !alertNoDataForFilters && !errorWebApi" class="row pt-3">
+        <div
+          v-if="!alertTableEmpty && !alertNoDataForFilters && !errorWebApi"
+          class="row pt-3"
+        >
           <div class="col-md-3">
             <!-- <label class="fw-bold">Punti: {{getTotalTargetPointsPorPage()}}</label> -->
             <h5

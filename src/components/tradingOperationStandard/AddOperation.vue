@@ -15,6 +15,7 @@ const riskReturn = ref<number>(0);
 const alertSaveSucces = ref(false);
 const alertEmptyField = ref(false);
 const errorWebApi = ref(false);
+const errorWebApiMessage = ref("");
 const isLoading = ref(false);
 const comments = ref("");
 const image = ref<unknown>("");
@@ -72,15 +73,32 @@ async function checkFieldEmpty() {
         alertSaveSucces.value = true;
         emptyField();
       })
-      .catch(() => {
+      .catch((error) => {
         errorWebApi.value = true;
+        switch (error.response.status) {
+          case 400:
+            errorWebApiMessage.value = "Errore 400: Richiesta non valida.";
+            break;
+          case 401:
+            errorWebApiMessage.value = "Errore 401: Non autorizzato.";
+            break;
+          case 403:
+            errorWebApiMessage.value = "Errore 403: Accesso negato.";
+            break;
+          case 404:
+            errorWebApiMessage.value = "Errore 404: Risorsa non trovata.";
+            break;
+          case 500:
+            errorWebApiMessage.value = "Errore 500: Errore interno del server.";
+            break;
+          default:
+            break;
+        }
       })
       .finally(() => {
         isLoading.value = false;
         alertEmptyField.value = false;
       });
-
-    console.log(saveData);
   }
 }
 
@@ -98,8 +116,6 @@ function emptyField() {
 }
 
 async function onFileChange(e: any) {
-  console.log(e.target.files);
-  console.log(await getBase64(e.target.files[0]));
   image.value = await getBase64(e.target.files[0]);
 }
 
@@ -387,7 +403,7 @@ function goToSummary() {
               >
                 <use xlink:href="#exclamation-triangle-fill" />
               </svg>
-              <div>ERRORE GENERICO, CONTATTARE IL SUPPORTO</div>
+              <div>{{ errorWebApiMessage }}</div>
             </div>
           </div>
           <div class="row pt-5">
