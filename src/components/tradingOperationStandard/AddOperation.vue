@@ -75,8 +75,7 @@ async function checkFieldEmpty() {
       })
       .catch(() => {
         errorWebApi.value = true;
-        errorWebApiMessage.value =
-          "Errore Generico: il server non risponde contattare supporto.";
+        errorWebApiMessage.value = "Errore Gnerico: il server non risponde, contattare supporto.";
       })
       .finally(() => {
         isLoading.value = false;
