@@ -14,6 +14,8 @@ const stopPonits = ref<number>();
 const riskReturn = ref<number>(0);
 const alertSaveSucces = ref(false);
 const alertEmptyField = ref(false);
+const errorWebApi = ref(false);
+const isLoading = ref(false);
 const comments = ref("");
 const image = ref<unknown>("");
 
@@ -22,9 +24,9 @@ onMounted(() => {});
 function saveOperation() {
   checkFieldEmpty();
 
-  if (alertEmptyField.value === false) {
-    emptyField();
-  }
+  // if (alertEmptyField.value === false) {
+  //   emptyField();
+  // }
 }
 
 function getRiskReturn() {
@@ -44,11 +46,9 @@ async function checkFieldEmpty() {
     stopPonits.value == null
   ) {
     alertEmptyField.value = true;
-    alertSaveSucces.value = false;
+    //alertSaveSucces.value = false;
+    //errorWebApi.value = false;
   } else {
-    alertSaveSucces.value = true;
-    alertEmptyField.value = false;
-
     const saveData = {
       data: operationData.value,
       time: operationTime.value,
@@ -66,8 +66,20 @@ async function checkFieldEmpty() {
         parseFloat(getRiskReturn()) === null ? 0 : parseFloat(getRiskReturn()),
       image: image.value,
     };
+    isLoading.value = true;
+    await OperationsService.addOperation(saveData)
+      .then(() => {
+        alertSaveSucces.value = true;
+        emptyField();
+      })
+      .catch(() => {
+        errorWebApi.value = true;
+      })
+      .finally(() => {
+        isLoading.value = false;
+        alertEmptyField.value = false;
+      });
 
-    await OperationsService.addOperation(saveData);
     console.log(saveData);
   }
 }
@@ -319,9 +331,18 @@ function goToSummary() {
               </div>
             </div>
           </div>
-          <div v-if="alertSaveSucces || alertEmptyField" class="row pt-5 mx-1">
+          <div class="d-flex justify-content-center">
             <div
-              v-if="alertSaveSucces"
+              v-if="isLoading"
+              class="spinner-border text-primary mt-5"
+              style="width: 3rem; height: 3rem"
+            >
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div class="row pt-5 mx-1">
+            <div
+              v-if="!isLoading && alertSaveSucces"
               class="alert alert-success d-flex align-items-center"
               role="alert"
             >
@@ -337,7 +358,7 @@ function goToSummary() {
               <div>Operazione salvata con successo!</div>
             </div>
             <div
-              v-if="alertEmptyField"
+              v-if="!isLoading && alertEmptyField"
               class="alert alert-danger d-flex align-items-center"
               role="alert"
             >
@@ -352,6 +373,22 @@ function goToSummary() {
               </svg>
               <div>Tutti i campi sono obbligatori!</div>
             </div>
+            <div
+              v-if="!isLoading && errorWebApi"
+              class="alert alert-danger d-flex align-items-center mt-5"
+              role="alert"
+            >
+              <svg
+                class="bi flex-shrink-0 me-2"
+                width="24"
+                height="24"
+                role="img"
+                aria-label="Danger:"
+              >
+                <use xlink:href="#exclamation-triangle-fill" />
+              </svg>
+              <div>ERRORE GENERICO, CONTATTARE IL SUPPORTO</div>
+            </div>
           </div>
           <div class="row pt-5">
             <div class="mt-0 pt-3 d-flex justify-content-center">
@@ -359,6 +396,7 @@ function goToSummary() {
                 type="button"
                 class="fw-bold ms-3 btn btn-outline-success"
                 @click="saveOperation()"
+                :disabled="isLoading"
               >
                 Salva operazione
               </button>
@@ -366,204 +404,13 @@ function goToSummary() {
                 type="button"
                 class="fw-bold ms-3 btn btn-outline-primary"
                 @click="goToSummary"
+                :disabled="isLoading"
               >
                 Vai al sommario
               </button>
             </div>
           </div>
         </div>
-        <!-- togliere dinamica e aggiungere massimo target raggiunto e lista news -->
-        <!-- <div v-else-if="standardOrNewsTrading == 'News'">
-          <div class="row pt-5">
-            <div class="col-md-6">
-              <label for="inputData" class="fw-bold form-label">Data</label>
-              <input
-                type="date"
-                class="form-control"
-                id="inputData"
-                v-model="operationData"
-              />
-            </div>
-            <div class="col-md-6">
-              <label for="inputTime" class="fw-bold form-label">Orario</label>
-              <input
-                type="time"
-                class="form-control"
-                id="inputTime"
-                v-model="operationTime"
-              />
-            </div>
-          </div>
-          <div class="row pt-5">
-            <div class="col-md-4">
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="stopOrTargetRadio"
-                  id="targetRadio"
-                  v-model="targetOrStopRadio"
-                  :value="'1'"
-                />
-                <label class="fw-bold form-check-label" for="targetRadio">
-                  Target
-                </label>
-              </div>
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="stopOrTargetRadio"
-                  id="stopRadio"
-                  :value="'0'"
-                  v-model="targetOrStopRadio"
-                />
-                <label class="fw-bold form-check-label" for="stopRadio">
-                  Stop
-                </label>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <label for="targetPoints" class="fw-bold form-label"
-                >Massimo target raggiunto</label
-              >
-              <input
-                type="number"
-                class="form-control"
-                id="targetPoints"
-                placeholder="Inserisci il massimo target raggiunto"
-                v-model="targetPonits"
-                min="0"
-              />
-            </div>
-            <div class="col-md-4">
-              <label
-                for="news"
-                class="fw-bold form-label"
-                aria-label="Default select example"
-                >News</label
-              >
-              <select
-                class="form-select"
-                id="news"
-                v-model="selectedNews"
-                multiple
-              >
-                <option v-for="news in newsList" :key="news">{{ news }}</option>
-              </select>
-              <p v-if="selectedNews.length > 0" class="fw-light">
-                {{ "News selezionate: " + selectedNews }}
-              </p>
-            </div>
-          </div>
-          <div class="row pt-5">
-            <div class="col-md-6">
-              <label for="targetPoints" class="fw-bold form-label"
-                >Punti di target</label
-              >
-              <input
-                type="number"
-                class="form-control"
-                id="targetPoints"
-                placeholder="Inserisci i punti di target"
-                v-model="targetPonits"
-                min="0"
-              />
-            </div>
-            <div class="col-md-6">
-              <label for="stopPoints" class="fw-bold form-label"
-                >Punti di stop</label
-              >
-              <input
-                type="number"
-                class="form-control"
-                id="stopPoints"
-                placeholder="Inserisci i punti di stop"
-                v-model="stopPonits"
-                min="0"
-              />
-            </div>
-          </div>
-          <div class="row pt-5">
-            <div class="col-md-6">
-              <div class="">
-                <label class="fw-bold form-label" for="floatingTextarea"
-                  >Commenti</label
-                >
-                <textarea
-                  class="form-control"
-                  id="floatingTextarea"
-                  v-model="comments"
-                ></textarea>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="">
-                <label for="formFile" class="fw-bold form-label"
-                  >Allega File</label
-                >
-                <input
-                  class="form-control"
-                  type="file"
-                  id="formFile"
-                  @change="onFileChange"
-                />
-              </div>
-            </div>
-          </div>
-          <div v-if="alertSaveSucces || alertEmptyField" class="row pt-5 mx-1">
-            <div
-              v-if="alertSaveSucces"
-              class="alert alert-success d-flex align-items-center"
-              role="alert"
-            >
-              <svg
-                class="bi flex-shrink-0 me-2"
-                width="24"
-                height="24"
-                role="img"
-                aria-label="Success:"
-              >
-                <use xlink:href="#check-circle-fill" />
-              </svg>
-              <div>Operazione salvata con successo!</div>
-            </div>
-            <div
-              v-if="alertEmptyField"
-              class="alert alert-danger d-flex align-items-center"
-              role="alert"
-            >
-              <svg
-                class="bi flex-shrink-0 me-2"
-                width="24"
-                height="24"
-                role="img"
-                aria-label="Danger:"
-              >
-                <use xlink:href="#exclamation-triangle-fill" />
-              </svg>
-              <div>Tutti i campi sono obbligatori!</div>
-            </div>
-          </div>
-          <div class="row pt-5">
-            <div class="mt-0 pt-3 d-flex justify-content-center">
-              <button
-                type="button"
-                class="fw-bold ms-3 btn btn-outline-success"
-                @click="saveOperation()"
-              >
-                Salva operazione
-              </button>
-              <button
-                type="button"
-                class="fw-bold ms-3 btn btn-outline-primary"
-                @click="goToSummary"
-              >
-                Vai al sommario
-              </button>
-            </div>
-          </div>
-        </div> -->
       </form>
     </div>
   </div>
