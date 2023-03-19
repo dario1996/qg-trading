@@ -68,6 +68,8 @@ async function checkFieldEmpty() {
       image: image.value,
     };
     isLoading.value = true;
+    alertSaveSucces.value = false;
+    errorWebApi.value = false;
     await OperationsService.addOperation(saveData)
       .then(() => {
         alertSaveSucces.value = true;
