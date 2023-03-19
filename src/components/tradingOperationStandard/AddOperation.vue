@@ -92,6 +92,7 @@ async function checkFieldEmpty() {
             errorWebApiMessage.value = "Errore 500: Errore interno del server.";
             break;
           default:
+            errorWebApiMessage.value = "Errore Generico: Contattare supporto.";
             break;
         }
       })
