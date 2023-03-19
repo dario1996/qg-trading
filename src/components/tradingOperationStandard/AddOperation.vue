@@ -70,14 +70,13 @@ async function checkFieldEmpty() {
     isLoading.value = true;
     await OperationsService.addOperation(saveData)
       .then(() => {
-        if (!alertSaveSucces.value) {
-          alertSaveSucces.value = true;
-          emptyField();
-        }
+        alertSaveSucces.value = true;
+        emptyField();
       })
       .catch(() => {
         errorWebApi.value = true;
-        errorWebApiMessage.value = "Errore Gnerico: il server non risponde contattare supporto."
+        errorWebApiMessage.value =
+          "Errore Generico: il server non risponde contattare supporto.";
       })
       .finally(() => {
         isLoading.value = false;
