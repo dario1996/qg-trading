@@ -75,34 +75,9 @@ async function checkFieldEmpty() {
           emptyField();
         }
       })
-      .catch((error) => {
+      .catch(() => {
         errorWebApi.value = true;
-        if (error.response.status === 0) {
-          errorWebApiMessage.value = "Errore: il server non risponde.";
-        } else {
-          switch (error.response.status) {
-            case 400:
-              errorWebApiMessage.value = "Errore 400: Richiesta non valida.";
-              break;
-            case 401:
-              errorWebApiMessage.value = "Errore 401: Non autorizzato.";
-              break;
-            case 403:
-              errorWebApiMessage.value = "Errore 403: Accesso negato.";
-              break;
-            case 404:
-              errorWebApiMessage.value = "Errore 404: Risorsa non trovata.";
-              break;
-            case 500:
-              errorWebApiMessage.value =
-                "Errore 500: Errore interno del server.";
-              break;
-            default:
-              errorWebApiMessage.value =
-                "Errore Generico: Contattare supporto.";
-              break;
-          }
-        }
+        errorWebApiMessage.value = "Errore Gnerico: il server non risponde contattare supporto."
       })
       .finally(() => {
         isLoading.value = false;
