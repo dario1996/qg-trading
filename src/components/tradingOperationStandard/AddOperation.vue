@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import OperationsService from "@/services/OperationsService";
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 const standardOrNewsTrading = ref("");
@@ -11,7 +11,6 @@ const operationTime = ref("");
 const dynamicRating = ref("");
 const targetPonits = ref<number>();
 const stopPonits = ref<number>();
-const riskReturn = ref<number>(0);
 const alertSaveSucces = ref(false);
 const alertEmptyField = ref(false);
 const errorWebApi = ref(false);
@@ -20,116 +19,117 @@ const isLoading = ref(false);
 const comments = ref("");
 const image = ref<unknown>("");
 
-onMounted(() => {});
-
-function saveOperation() {
-  checkFieldEmpty();
-
-  // if (alertEmptyField.value === false) {
-  //   emptyField();
-  // }
-}
-
 function getRiskReturn() {
-  if (targetPonits.value && stopPonits.value) {
-    riskReturn.value = targetPonits.value / stopPonits.value;
-  }
-  return riskReturn.value.toFixed(1);
+  return targetPonits.value && stopPonits.value
+    ? (targetPonits.value / stopPonits.value).toFixed(1)
+    : "0";
 }
 
-async function checkFieldEmpty() {
-  if (
-    targetOrStopRadio.value == "" ||
-    operationData.value == "" ||
-    operationTime.value == "" ||
-    dynamicRating.value == "" ||
-    targetPonits.value == null ||
-    stopPonits.value == null
-  ) {
+async function saveOperation() {
+  const isEmpty =
+    targetOrStopRadio.value === "" ||
+    operationData.value === "" ||
+    operationTime.value === "" ||
+    dynamicRating.value === "" ||
+    targetPonits.value === null ||
+    stopPonits.value === null;
+
+  if (isEmpty) {
     alertEmptyField.value = true;
-    //alertSaveSucces.value = false;
-    //errorWebApi.value = false;
-  } else {
-    const saveData = {
-      data: operationData.value,
-      time: operationTime.value,
-      result: targetOrStopRadio.value === "1" ? "Target" : "Stop",
-      dynamic:
-        dynamicRating.value === "0"
-          ? "Rating 4"
-          : dynamicRating.value === "1"
-          ? "Rating 5"
-          : "Rating maggiore di 5",
-      targetPoints: targetPonits.value,
-      stopPoints: stopPonits.value,
-      comments: comments.value,
-      riskReturn:
-        parseFloat(getRiskReturn()) === null ? 0 : parseFloat(getRiskReturn()),
-      image: image.value,
-    };
-    isLoading.value = true;
-    alertSaveSucces.value = false;
-    errorWebApi.value = false;
-    await OperationsService.addOperation(saveData)
-      .then(() => {
-        alertSaveSucces.value = true;
-        emptyField();
-      })
-      .catch(() => {
-        errorWebApi.value = true;
-        errorWebApiMessage.value = "Errore Generico: il server non risponde, contattare supporto.";
-      })
-      .finally(() => {
-        isLoading.value = false;
-        alertEmptyField.value = false;
-      });
+    return;
+  }
+
+  const saveData = {
+    data: operationData.value,
+    time: operationTime.value,
+    result: targetOrStopRadio.value === "1" ? "Target" : "Stop",
+    dynamic:
+      dynamicRating.value === "0"
+        ? "Rating 4"
+        : dynamicRating.value === "1"
+        ? "Rating 5"
+        : "Rating maggiore di 5",
+    targetPoints: targetPonits.value,
+    stopPoints: stopPonits.value,
+    comments: comments.value,
+    riskReturn: parseFloat(getRiskReturn()) || 0,
+    image: image.value,
+  };
+
+  isLoading.value = true;
+  alertSaveSucces.value = false;
+  errorWebApi.value = false;
+
+  try {
+    await OperationsService.addOperation(saveData);
+    alertSaveSucces.value = true;
+    emptyField();
+  } catch (error) {
+    errorWebApi.value = true;
+    errorWebApiMessage.value =
+      "Errore Generico: il server non risponde, contattare supporto.";
+  } finally {
+    isLoading.value = false;
+    alertEmptyField.value = false;
   }
 }
 
 function emptyField() {
-  targetOrStopRadio.value = "";
-  operationData.value = "";
-  operationTime.value = "";
-  dynamicRating.value = "";
+  const fields = [
+    targetOrStopRadio,
+    operationData,
+    operationTime,
+    dynamicRating,
+    comments,
+  ];
+  fields.forEach((field) => {
+    field.value = "";
+  });
   targetPonits.value = undefined;
   stopPonits.value = undefined;
-  comments.value = "";
-
-  const inputElement = document.getElementById("formFile") as HTMLInputElement;
-  inputElement.value = "";
+  const inputFile = document.querySelector(
+    'input[type="file"]'
+  ) as HTMLInputElement;
+  inputFile.value = "";
 }
 
 async function onFileChange(e: any) {
-  image.value = await getBase64(e.target.files[0]);
+  const file = e.target.files[0];
+  // if (!file) {
+  //   console.error("No file selected.");
+  //   return;
+  // }
+  try {
+    image.value = await getBase64(file);
+  } catch (error) {
+    console.error("Error converting file to base64:", error);
+  }
 }
 
-function getBase64(file: any) {
-  return new Promise((resolve, reject) => {
-    var reader = new FileReader();
+async function getBase64(file: any) {
+  return new Promise<string>((resolve) => {
+    const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = function () {
-      resolve(reader.result);
-    };
-    reader.onerror = function (error) {
-      reject(error);
+    reader.onload = () => {
+      resolve(reader.result as string);
     };
   });
 }
 
-function goToAddOperationNews() {
+const goToAddOperationNews = () => {
   if (standardOrNewsTrading.value == "News") {
     router.push({
       path: "/operation/add/news",
     });
   }
-}
-function goToSummary() {
+};
+
+const goToSummary = () => {
   router.push({
     path: "/operations",
   });
-}
+};
 </script>
-
 <template>
   <div class="card asd">
     <div class="card-body">
@@ -359,7 +359,7 @@ function goToSummary() {
             </div>
             <div
               v-if="!isLoading && alertEmptyField"
-              class="alert alert-danger d-flex align-items-center"
+              class="alert alert-warning d-flex align-items-center"
               role="alert"
             >
               <svg
@@ -367,7 +367,7 @@ function goToSummary() {
                 width="24"
                 height="24"
                 role="img"
-                aria-label="Danger:"
+                aria-label="Warning:"
               >
                 <use xlink:href="#exclamation-triangle-fill" />
               </svg>
