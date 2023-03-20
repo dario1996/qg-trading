@@ -9,6 +9,7 @@ const alertNoDataForFilters = ref(false);
 const tableVisibility = ref(false);
 const alertTableEmpty = ref(false);
 const errorWebApi = ref(false);
+const errorWebApiMessage = ref("");
 const isLoading = ref(false);
 const operationPorPage = ref<number>(25);
 const actualPage = ref<number>(1);
@@ -60,107 +61,42 @@ onMounted(async () => {
 });
 
 async function getOperations() {
-  isLoading.value = true;
-  await OperationsService.getOperations()
-    .then((response) => {
-      operationList.value = response.data;
-      getPagesData(1);
-    })
-    .catch((error) => {
-      tableVisibility.value = false;
-      if (operationList.value && operationList.value.length !== 0) {
-        alertTableEmpty.value = true;
-      } else {
-        errorWebApi.value = true;
-        console.log(error.response.status);
-      }
-    })
-    .finally(() => {
-      isLoading.value = false;
-      tableVisibility.value = true;
-    });
+  try {
+    isLoading.value = true;
+    const response = await OperationsService.getOperations();
+    operationList.value = response.data;
+    getPagesData(1);
+    tableVisibility.value = true;
+    alertTableEmpty.value =
+      operationList.value && operationList.value.length === 0;
+  } catch (error) {
+    tableVisibility.value = false;
+    errorWebApi.value = true;
+    errorWebApiMessage.value =
+      "Errore Generico: il server non risponde, contattare supporto.";
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 async function deleteOperation(opId: number) {
-  await OperationsService.deleteOperation(opId).then(() => {
+  try {
+    isLoading.value = true;
+    await OperationsService.deleteOperation(opId);
     const index = operationPagedList.value.findIndex(
       (post) => post.id === opId
     );
-    if (~index) operationPagedList.value.splice(index, 1); //delete the post
-    getOperations();
-  });
+    if (~index) operationPagedList.value.splice(index, 1);
+    await getOperations();
+  } catch (error) {
+    tableVisibility.value = false;
+    errorWebApi.value = true;
+    errorWebApiMessage.value =
+      "Errore Generico: il server non risponde, contattare supporto.";
+  } finally {
+    isLoading.value = false;
+  }
 }
-
-//FILTRI TABELLA
-// function filterOperationsTable() {
-//   let filterOperationResult = filteredData.value.targetOrStopRadio;
-//   let filterOperationDynamic = filteredData.value.dynamicRadio;
-//   let startRiskResult = filteredData.value.startRiskResult;
-//   let endRiskResult = filteredData.value.endRiskResult;
-//   let startTargetPoints = filteredData.value.startTargetPoints;
-//   let endTargetPoints = filteredData.value.endTargetPoints;
-//   let startStopPoints = filteredData.value.startStopPoints;
-//   let endStopPoints = filteredData.value.endStopPoints;
-//   let startDate = localizeDate(filteredData.value.startDate);
-//   let endDate = localizeDate(filteredData.value.endDate);
-//   let startTime = filteredData.value.startTime;
-//   let endTime = filteredData.value.endTime;
-//   if (operationList.value) {
-//     operationList.value = filterOperationResult
-//       ? operationList.value.filter((el) => el.result === filterOperationResult)
-//       : operationList.value;
-//     operationList.value =
-//       startDate && endDate
-//         ? operationList.value.filter(
-//             (el) =>
-//               startDate <= new Date(localizeDate(el.data)) &&
-//               new Date(localizeDate(el.data)) <= endDate
-//           )
-//         : operationList.value;
-//     if (startRiskResult != 0 && endRiskResult != 0) {
-//       operationList.value = operationList.value.filter(
-//         (el) =>
-//           startRiskResult <= el.riskReturn && el.riskReturn <= endRiskResult
-//       );
-//     } else {
-//       operationList.value;
-//     }
-//     if (endTargetPoints != 0) {
-//       operationList.value = operationList.value.filter(
-//         (el) =>
-//           startTargetPoints <= el.targetPoints &&
-//           el.targetPoints <= endTargetPoints
-//       );
-//     } else {
-//       operationList.value;
-//     }
-//     if (endStopPoints != 0) {
-//       operationList.value = operationList.value.filter(
-//         (el) =>
-//           startStopPoints <= el.stopPoints && el.stopPoints <= endStopPoints
-//       );
-//     } else {
-//       operationList.value;
-//     }
-//     operationList.value = filterOperationDynamic
-//       ? operationList.value.filter(
-//           (el) => el.dynamic === filterOperationDynamic
-//         )
-//       : operationList.value;
-//     operationList.value =
-//       startTime && endTime
-//         ? operationList.value.filter(
-//             (el) => startTime <= el.time && el.time <= endTime
-//           )
-//         : operationList.value;
-//     getPagesData(1);
-//   }
-//   console.log(operationList.value);
-//   if (operationPagedList.value.length === 0) {
-//     tableVisibility.value = false;
-//     alertNoDataForFilters.value = true;
-//   }
-// }
 
 function filterOperationsTable() {
   const operationListValue = operationList.value;
@@ -209,15 +145,22 @@ function filterOperationsTable() {
   console.log(operationList.value);
 }
 
-//CANCELLA FILTRI
+// CANCELLA FILTRI
 function cancelFilters() {
-  filteredData.value.startDate = "";
-  filteredData.value.endDate = "";
-  filteredData.value.targetOrStopRadio = "";
-  filteredData.value.startRiskResult = 0;
-  filteredData.value.endRiskResult = 0;
-  filteredData.value.startTime = "";
-  filteredData.value.endTime = "";
+  filteredData.value = {
+    startDate: "",
+    endDate: "",
+    startTime: "",
+    endTime: "",
+    targetOrStopRadio: "",
+    dynamicRadio: "",
+    startTargetPoints: 0,
+    endTargetPoints: 0,
+    startStopPoints: 0,
+    endStopPoints: 0,
+    startRiskResult: 0,
+    endRiskResult: 0,
+  };
   alertNoDataForFilters.value = false;
   getOperations();
 }
@@ -840,7 +783,7 @@ function goToSummaryNews() {
         </div>
         <div
           v-if="alertTableEmpty"
-          class="alert alert-danger d-flex align-items-center"
+          class="alert alert-danger d-flex align-items-center mt-5"
           role="alert"
         >
           <svg
@@ -868,10 +811,12 @@ function goToSummaryNews() {
           >
             <use xlink:href="#exclamation-triangle-fill" />
           </svg>
-          <div>ERRORE GENERICO, CONTATTARE IL SUPPORTO</div>
+          <div>{{ errorWebApiMessage }}</div>
         </div>
         <table
-          v-if="tableVisibility && !isLoading && !errorWebApi"
+          v-if="
+            tableVisibility && !isLoading && !errorWebApi && !alertTableEmpty
+          "
           class="table table-responsive align-middle"
         >
           <thead>
@@ -1043,7 +988,7 @@ function goToSummaryNews() {
         <div class="row">
           <div class="mt-0 pt-3 d-flex justify-content-center">
             <button
-              v-if="!isLoading && !errorWebApi"
+              v-if="!isLoading && !errorWebApi && !alertTableEmpty"
               type="button"
               class="fw-bold ms-3 btn btn-outline-primary"
               @click="goToAddOperation"

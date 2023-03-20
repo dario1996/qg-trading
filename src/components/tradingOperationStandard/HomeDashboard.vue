@@ -1,16 +1,36 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut } from "vue-chartjs";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+} from "chart.js";
+import { Doughnut, Line } from "vue-chartjs";
 import OperationsService from "@/services/OperationsService";
 import OperationsNewsService from "@/services/OperationsNewsService";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement
+);
 
 const router = useRouter();
 const alertTableEmpty = ref(false);
-const tableVisibility = ref(false);
+const tableStandardVisibility = ref(false);
+const tableNewsVisibility = ref(false);
+const errorWebApi = ref(false);
+const errorWebApiMessage = ref("");
 const isLoading = ref(false);
 const lastOperationAdded = ref<OperationList[]>([]);
 const lastOperationAddedNews = ref<OperationListNews[]>([]);
@@ -18,6 +38,7 @@ const operationList = ref<OperationList[]>([]);
 const operationListNews = ref<OperationListNews[]>([]);
 const isMountedStandard = ref<boolean>(false);
 const isMountedNews = ref<boolean>(false);
+const isMountedLineChart = ref<boolean>(false);
 const rateWinStandard = ref();
 const rateWinNews = ref();
 const options = {
@@ -41,6 +62,20 @@ const dataNews = {
     {
       backgroundColor: ["#41B883", "#DD1B16"],
       data: [] as number[],
+    },
+  ],
+};
+
+const labels = riempiArray();
+const dataLineChart = {
+  labels: labels,
+  datasets: [
+    {
+      label: "Punti netti",
+      data: [65, 59, 80, 81, 56, 55, 40],
+      fill: false,
+      borderColor: "#FFC107",
+      tension: 0.1,
     },
   ],
 };
@@ -83,48 +118,53 @@ interface OperationListNews {
 }
 
 onMounted(async () => {
-  getOperationsStandard();
-  getOperationsNews();
+  await getOperationsStandard();
+  await getOperationsNews();
 });
 
 async function getOperationsStandard() {
-  await OperationsService.getOperations().then((response) => {
+  try {
     isLoading.value = true;
-    tableVisibility.value = false;
+    const response = await OperationsService.getOperations();
     operationList.value = response.data;
-    setTimeout(() => {
-      isLoading.value = false;
-      if (response.data.length !== 0) {
-        lastOperationAdded.value = operationList.value.slice(-1);
-        tableVisibility.value = true;
-      } else {
-        tableVisibility.value = false;
-        alertTableEmpty.value = true;
-      }
-    }, 750);
+    if (operationList.value && operationList.value.length > 0) {
+      lastOperationAdded.value = operationList.value.slice(-1);
+      tableStandardVisibility.value = true;
+    } else {
+      tableStandardVisibility.value = false;
+      alertTableEmpty.value = true;
+    }
     isMountedStandard.value = true;
+    isMountedLineChart.value = true;
     getWinRateStandard();
-  });
+  } catch (error) {
+    errorWebApi.value = true;
+    errorWebApiMessage.value =
+      "Errore Generico: il server non risponde, contattare supporto.";
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 async function getOperationsNews() {
-  await OperationsNewsService.getOperations().then((response) => {
+  try {
     isLoading.value = true;
-    tableVisibility.value = false;
+    const response = await OperationsNewsService.getOperations();
     operationListNews.value = response.data;
-    setTimeout(() => {
-      isLoading.value = false;
-      if (response.data.length !== 0) {
-        lastOperationAddedNews.value = operationListNews.value.slice(-1);
-        tableVisibility.value = true;
-      } else {
-        tableVisibility.value = false;
-        alertTableEmpty.value = true;
-      }
-    }, 750);
+    if (response.data.length !== 0) {
+      lastOperationAddedNews.value = operationListNews.value.slice(-1);
+      tableNewsVisibility.value = true;
+    } else {
+      tableNewsVisibility.value = false;
+      alertTableEmpty.value = true;
+    }
     isMountedNews.value = true;
     getWinRateNews();
-  });
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 function getWinRateStandard() {
@@ -190,6 +230,42 @@ function convertDate(dateString: string) {
   return [p[2], p[1], p[0]].join("-");
 }
 
+function riempiArray() {
+  const labels = [];
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  //const firstDayOfMonth = new Date(today.getFullYear(), currentMonth, 1);
+  const daysInMonth = new Date(
+    today.getFullYear(),
+    currentMonth + 1,
+    0
+  ).getDate();
+
+  let weekStart = 1;
+  let weekEnd = 5;
+  let weekNum = 1;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const currentDate = new Date(today.getFullYear(), currentMonth, day);
+    const dayOfWeek = currentDate.getDay();
+
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      if (day === 1) {
+        labels.push(`Marzo - settimana ${weekNum} ${weekStart}-${day + 2}`);
+      } else if (day === daysInMonth) {
+        labels.push(`Marzo - settimana ${weekNum} ${weekStart}-${day}`);
+      } else if (dayOfWeek === 1) {
+        labels.push(`Marzo - settimana ${weekNum} ${weekStart}-${weekEnd}`);
+        weekNum++;
+        weekStart = day;
+        weekEnd = day + 4;
+      }
+    }
+  }
+  console.log(labels);
+  return labels;
+}
+
 function goToAddOperation() {
   router.push({
     path: "/operation/add",
@@ -218,15 +294,14 @@ function goToDetailsNews(opId: number) {
 <template>
   <div class="row row-cols-1 row-cols-md-2 g-4 margin-row">
     <div class="col">
-      <div class="card h-100 border-primary mb-3 asd">
+      <div class="card h-100 border-primary mb-3 card-style">
         <i
           class="bi bi-plus-circle text-primary text-center"
           style="font-size: 100px; cursor: pointer"
           @click="goToAddOperation"
         ></i>
-        <!-- <img src="../assets/back_img_2.png" class="card-img-top img" alt="..."> -->
         <div class="card-body pt-5">
-          <h5 class="card-title">Aggiungi operazione</h5>
+          <h2 class="card-title">Aggiungi operazione</h2>
           <p class="card-text">
             Clicca sull'icona per aggiungere una nuova operazione (navigazione
             alla pagina dedicata).
@@ -235,15 +310,16 @@ function goToDetailsNews(opId: number) {
       </div>
     </div>
     <div class="col">
-      <div class="card h-100 border-info mb-3 asd">
-        <!-- <i
-          class="bi bi-graph-up text-info text-center"
-          style="font-size: 100px"
-        ></i> -->
-        <div class="row">
+      <div class="card h-100 border-info mb-3 card-style">
+        <h2 class="card-title">Grafici di riepilogo</h2>
+        <p class="card-text">
+          Grafico che rappresenta il win rate - percentuale di vincita (rapporto
+          tra operazioni chiuse a target e operazioni chiuse a stop).
+        </p>
+        <div v-if="!isLoading" class="row">
           <div class="col-6 d-flex justify-content-center">
             <Doughnut
-              v-if="isMountedStandard"
+              v-if="isMountedStandard && !data.datasets[0].data.includes(NaN)"
               id="chart"
               class="chart justify-content-center"
               :data="data"
@@ -252,7 +328,7 @@ function goToDetailsNews(opId: number) {
           </div>
           <div class="col-6 d-flex justify-content-center">
             <Doughnut
-              v-if="isMountedNews"
+              v-if="isMountedNews && !dataNews.datasets[0].data.includes(NaN)"
               id="chartNews"
               class="chart justify-content-center"
               :data="dataNews"
@@ -260,34 +336,99 @@ function goToDetailsNews(opId: number) {
             ></Doughnut>
           </div>
         </div>
-        <!-- <img src="../assets/back_img_3.png" class="card-img-top img" alt="..."> -->
         <div class="card-body">
-          <h5 class="card-title">Grafici di riepilogo</h5>
-          <p class="card-text">
-            Grafico che rappresenta il win rate - percentuale di vincita
-            (rapporto tra operazioni chiuse a target e operazioni chiuse a
-            stop).
-          </p>
-          <div class="row">
+          <div class="d-flex justify-content-center">
+            <div
+              v-if="isLoading"
+              class="spinner-border text-primary mt-5"
+              style="width: 3rem; height: 3rem"
+            >
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div v-if="!isLoading" class="row">
             <div class="col-6 d-flex justify-content-center">
-              <h1 class="pt-3">{{ "Standard: " + rateWinStandard + "%" }}</h1>
+              <div
+                v-if="!isLoading && data.datasets[0].data.includes(NaN)"
+                class="alert alert-primary d-flex align-items-center"
+                role="alert"
+              >
+                <svg
+                  class="bi flex-shrink-0 me-2"
+                  width="24"
+                  height="24"
+                  role="img"
+                  aria-label="Info:"
+                >
+                  <use xlink:href="#info-fill" />
+                </svg>
+                <div>
+                  Il grafico che rappresenta il win rate delle operazioni
+                  standard non contiene alcun dato.
+                </div>
+              </div>
+              <h1
+                v-if="!errorWebApi && !data.datasets[0].data.includes(NaN)"
+                class="pt-3"
+              >
+                {{ "Standard: " + rateWinStandard + "%" }}
+              </h1>
             </div>
             <div class="col-6 d-flex justify-content-center">
-              <h1 class="pt-3">{{ "News: " + rateWinNews + "%" }}</h1>
+              <div
+                v-if="!isLoading && dataNews.datasets[0].data.includes(NaN)"
+                class="alert alert-primary d-flex align-items-center"
+                role="alert"
+              >
+                <svg
+                  class="bi flex-shrink-0 me-2"
+                  width="24"
+                  height="24"
+                  role="img"
+                  aria-label="Info:"
+                >
+                  <use xlink:href="#info-fill" />
+                </svg>
+                <div>
+                  Il grafico che rappresenta il win rate delle operazioni news
+                  non contiene alcun dato.
+                </div>
+              </div>
+              <h1
+                v-if="!errorWebApi && !dataNews.datasets[0].data.includes(NaN)"
+                class="pt-3"
+              >
+                {{ "News: " + rateWinNews + "%" }}
+              </h1>
+            </div>
+            <div
+              v-if="errorWebApi"
+              class="alert alert-danger d-flex align-items-center mt-5"
+              role="alert"
+            >
+              <svg
+                class="bi flex-shrink-0 me-2"
+                width="24"
+                height="24"
+                role="img"
+                aria-label="Danger:"
+              >
+                <use xlink:href="#exclamation-triangle-fill" />
+              </svg>
+              <div>{{ errorWebApiMessage }}</div>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="col">
-      <div class="card h-100 border-warning mb-3 asd">
+      <div class="card h-100 border-warning mb-3 card-style">
         <i
           class="bi bi-trophy text-warning text-center"
           style="font-size: 100px"
         ></i>
-        <!-- <img src="../assets/back_img_2.png" class="card-img-top img" alt="..."> -->
         <div class="card-body pt-5">
-          <h5 class="card-title">Punti netti</h5>
+          <h2 class="card-title">Punti netti</h2>
           <p class="card-text">
             Questo valore indica la differenza tra i punti di target ed i punti
             di stop.
@@ -300,30 +441,58 @@ function goToDetailsNews(opId: number) {
               {{ "News: " + getTotalnetPointsNews() }}
             </h1>
           </div>
+          <div class="row pt-5">
+            <div class="col-12">
+              <Line v-if="isMountedLineChart" :data="dataLineChart"></Line>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     <div class="col">
-      <div class="card h-100 border-success mb-3 asd">
+      <div class="card h-100 border-success mb-3 card-style">
         <i
           class="bi bi-cloud-arrow-up text-success text-center"
           style="font-size: 100px"
         ></i>
-        <!-- <img src="../assets/back_img_3.png" class="card-img-top img" alt="..."> -->
-        <div class="card-body pt-3">
-          <h5 class="card-title">Ultime operazioni aggiunte</h5>
+        <div v-if="!errorWebApi" class="card-body pt-3">
+          <h2 class="card-title">Ultime operazioni aggiunte</h2>
           <p class="card-text">
-            Questa sono le ultime operazioni che sono state aggiunte nel diario
+            Queste sono le ultime operazioni che sono state aggiunte nel diario
             del trading.
           </p>
-          <h5
-            v-if="tableVisibility && !isLoading"
-            class="card-title fw-light pb-3 pt-3"
-          >
+          <div class="d-flex justify-content-center">
+            <div
+              v-if="isLoading"
+              class="spinner-border text-primary mt-5"
+              style="width: 3rem; height: 3rem"
+            >
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <h5 v-if="!isLoading" class="card-title fw-light pb-3 pt-3">
             Ultima operazione standard
           </h5>
+          <div
+            v-if="!isLoading && !tableStandardVisibility"
+            class="alert alert-primary d-flex align-items-center"
+            role="alert"
+          >
+            <svg
+              class="bi flex-shrink-0 me-2"
+              width="24"
+              height="24"
+              role="img"
+              aria-label="Info:"
+            >
+              <use xlink:href="#info-fill" />
+            </svg>
+            <div>
+              Nessuna ultima operazione standard aggiunta da visualizzare.
+            </div>
+          </div>
           <table
-            v-if="tableVisibility && !isLoading"
+            v-if="tableStandardVisibility && !isLoading"
             class="table table-responsive align-middle"
           >
             <thead>
@@ -353,7 +522,6 @@ function goToDetailsNews(opId: number) {
                   {{ convertDate(operation.data) + " - " + operation.time }}
                 </td>
                 <td>{{ operation.dynamic }}</td>
-                <!-- <td>{{ operation.result }}</td> -->
                 <td class="text-center">
                   <i
                     v-if="operation.result == 'Target'"
@@ -367,8 +535,6 @@ function goToDetailsNews(opId: number) {
                 <td class="text-center">{{ operation.targetPoints }}</td>
                 <td class="text-center">{{ operation.stopPoints }}</td>
                 <td class="text-center">{{ operation.riskReturn }}</td>
-                <!-- operation.target -->
-                <!-- <td>{{}}</td> -->
                 <td>
                   <button
                     type="button"
@@ -381,14 +547,11 @@ function goToDetailsNews(opId: number) {
               </tr>
             </tbody>
           </table>
-          <h5
-            v-if="tableVisibility && !isLoading"
-            class="card-title fw-light pb-2 pt-4"
-          >
+          <h5 v-if="!isLoading" class="card-title fw-light pb-2 pt-4">
             Ultima operazione news
           </h5>
           <table
-            v-if="tableVisibility && !isLoading"
+            v-if="tableNewsVisibility && !isLoading"
             class="table table-responsive align-middle"
           >
             <thead>
@@ -454,14 +617,43 @@ function goToDetailsNews(opId: number) {
               </tr>
             </tbody>
           </table>
-          <div class="d-flex justify-content-center">
-            <div
-              v-if="isLoading === true"
-              class="spinner-border text-primary"
-              style="width: 3rem; height: 3rem"
+          <div
+            v-if="!isLoading && !tableNewsVisibility"
+            class="alert alert-primary d-flex align-items-center"
+            role="alert"
+          >
+            <svg
+              class="bi flex-shrink-0 me-2"
+              width="24"
+              height="24"
+              role="img"
+              aria-label="Info:"
             >
-              <span class="visually-hidden">Loading...</span>
-            </div>
+              <use xlink:href="#info-fill" />
+            </svg>
+            <div>Nessuna ultima operazione news aggiunta da visualizzare.</div>
+          </div>
+        </div>
+        <div v-if="errorWebApi" class="card-body pt-3">
+          <h2 class="card-title">Ultime operazioni aggiunte</h2>
+          <p class="card-text">
+            Queste sono le ultime operazioni che sono state aggiunte nel diario
+            del trading.
+          </p>
+          <div
+            class="alert alert-danger d-flex align-items-center mt-5"
+            role="alert"
+          >
+            <svg
+              class="bi flex-shrink-0 me-2"
+              width="24"
+              height="24"
+              role="img"
+              aria-label="Danger:"
+            >
+              <use xlink:href="#exclamation-triangle-fill" />
+            </svg>
+            <div>{{ errorWebApiMessage }}</div>
           </div>
         </div>
       </div>
@@ -482,7 +674,7 @@ function goToDetailsNews(opId: number) {
   width: auto;
   height: 300px;
 }
-.asd {
+.card-style {
   /* margin-top: 100px !important; */
   margin: 2rem auto;
   padding: 1rem;
@@ -492,5 +684,9 @@ function goToDetailsNews(opId: number) {
 .chart {
   width: 230px !important;
   height: 230px !important;
+}
+.line-chart {
+  width: 1000px !important;
+  height: 350px !important;
 }
 </style>
