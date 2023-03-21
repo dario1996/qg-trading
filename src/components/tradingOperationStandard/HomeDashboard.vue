@@ -127,6 +127,7 @@ interface OperationListNews {
 onMounted(async () => {
   await getOperationsStandard();
   await getOperationsNews();
+  isMountedLineChart.value = true;
 });
 
 async function getOperationsStandard() {
@@ -142,9 +143,8 @@ async function getOperationsStandard() {
       alertTableEmpty.value = true;
     }
     isMountedStandard.value = true;
-    isMountedLineChart.value = true;
     getWinRateStandard();
-    updateDataLineChart();
+    updateDataLineChartStandard();
   } catch (error) {
     errorWebApi.value = true;
     errorWebApiMessage.value =
@@ -168,7 +168,7 @@ async function getOperationsNews() {
     }
     isMountedNews.value = true;
     getWinRateNews();
-    updateDataLineChart();
+    updateDataLineChartNews();
   } catch (error) {
     console.error(error);
   } finally {
@@ -211,59 +211,37 @@ function getWeekOfMonth(date: Date): number {
   return Math.floor(index / 7) + (index % 7 == 0 ? 0 : 1);
 }
 
-function updateDataLineChart() {
-  // eslint-disable-next-line no-debugger
-  //debugger;
+function updateDataLineChartStandard() {
   const weeksInMonth = getWeeksInMonth(
     new Date().getFullYear(),
     new Date().getMonth()
   );
   const dataStandard = Array.from({ length: weeksInMonth }, () => 0);
-  console.log(operationList.value);
   operationList.value.forEach((el) => {
-    // eslint-disable-next-line no-debugger
-    //debugger;
     const week = getWeekOfMonth(new Date(el.data));
-    //console.log(week);
     const sPoints = el.result == "Stop" ? el.stopPoints : 0;
     const tPoints = el.result == "Target" ? el.targetPoints : 0;
     dataStandard[week - 1] += tPoints - sPoints;
   });
+  dataLineChart.datasets[0].data = dataStandard;
+  console.log(dataLineChart.datasets[0].data);
+}
 
+function updateDataLineChartNews() {
+  const weeksInMonth = getWeeksInMonth(
+    new Date().getFullYear(),
+    new Date().getMonth()
+  );
   const dataNews = Array.from({ length: weeksInMonth }, () => 0);
-  console.log(operationListNews.value);
   operationListNews.value.forEach((el) => {
-    // eslint-disable-next-line no-debugger
-    //debugger;
     const week = getWeekOfMonth(new Date(el.data));
-    //console.log(week);
     const sPoints = el.result == "Stop" ? el.stopPoints : 0;
     const tPoints = el.result == "Target" ? el.targetPoints : 0;
     dataNews[week - 1] += tPoints - sPoints;
   });
-
-  dataLineChart.datasets[0].data = dataStandard;
   dataLineChart.datasets[1].data = dataNews;
-  console.log((dataLineChart.datasets[1].data = dataNews));
-  //dataLineChart.update();
+  console.log(dataLineChart.datasets[1].data);
 }
-
-// function getTotalnetPointsStandardForChart() {
-//   const currentYear = new Date().getFullYear();
-//   const currentMonth = new Date().getMonth();
-//   const weeksInMonth = getWeeksInMonth(currentYear, currentMonth);
-//   const netPointsPerWeek = Array.from({ length: weeksInMonth }, () => 0);
-
-//   operationList.value.forEach((el) => {
-//     const weekOfMonth = getWeekOfMonth(new Date(el.data));
-//     if (weekOfMonth >= 1 && weekOfMonth <= weeksInMonth) {
-//       const netPoints = el.targetPoints - el.stopPoints;
-//       netPointsPerWeek[weekOfMonth - 1] += netPoints;
-//     }
-//   });
-//   console.log(netPointsPerWeek);
-//   return netPointsPerWeek;
-// }
 
 function getTotalnetPointsStandard() {
   let totalTargetPoints = 0;
@@ -302,19 +280,6 @@ function convertDate(dateString: string) {
   return [p[2], p[1], p[0]].join("-");
 }
 
-// function populateLineChartLabels(year: number, month: number) {
-//   const date = new Date(year, month, 1);
-//   const monthName = date.toLocaleString("default", { month: "long" });
-//   const weeksInMonth = getWeeksInMonth(year, month);
-//   const labels = [];
-
-//   for (let i = 1; i <= weeksInMonth; i++) {
-//     labels.push(`${monthName} - settimana ${i}`);
-//   }
-
-//   return labels;
-// }
-
 function populateLineChartLabels() {
   const today = new Date();
   const monthName = today.toLocaleString("default", { month: "long" });
@@ -329,8 +294,6 @@ function populateLineChartLabels() {
 }
 
 function getWeeksInMonth(year: number, month: number) {
-  // eslint-disable-next-line no-debugger
-  //debugger;
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();
