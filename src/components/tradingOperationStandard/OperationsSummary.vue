@@ -65,6 +65,9 @@ async function getOperations() {
     isLoading.value = true;
     const response = await OperationsService.getOperations();
     operationList.value = response.data;
+    operationList.value.sort(
+      (a, b) => new Date(a.data).getTime() - new Date(b.data).getTime()
+    ); // Ordina per data crescente
     getPagesData(1);
     tableVisibility.value = true;
     alertTableEmpty.value =

@@ -66,15 +66,22 @@ const dataNews = {
   ],
 };
 
-const labels = riempiArray();
+const labels = populateLineChartLabels();
 const dataLineChart = {
   labels: labels,
   datasets: [
     {
-      label: "Punti netti",
-      data: [65, 59, 80, 81, 56, 55, 40],
+      label: "Punti netti STANDARD",
+      data: [] as number[],
       fill: false,
       borderColor: "#FFC107",
+      tension: 0.1,
+    },
+    {
+      label: "Punti netti NEWS",
+      data: [] as number[],
+      fill: false,
+      borderColor: "#0D6EFD",
       tension: 0.1,
     },
   ],
@@ -137,6 +144,7 @@ async function getOperationsStandard() {
     isMountedStandard.value = true;
     isMountedLineChart.value = true;
     getWinRateStandard();
+    updateDataLineChart();
   } catch (error) {
     errorWebApi.value = true;
     errorWebApiMessage.value =
@@ -151,7 +159,7 @@ async function getOperationsNews() {
     isLoading.value = true;
     const response = await OperationsNewsService.getOperations();
     operationListNews.value = response.data;
-    if (response.data.length !== 0) {
+    if (operationListNews.value && operationListNews.value.length > 0) {
       lastOperationAddedNews.value = operationListNews.value.slice(-1);
       tableNewsVisibility.value = true;
     } else {
@@ -160,6 +168,7 @@ async function getOperationsNews() {
     }
     isMountedNews.value = true;
     getWinRateNews();
+    updateDataLineChart();
   } catch (error) {
     console.error(error);
   } finally {
@@ -192,6 +201,69 @@ function getWinRateNews() {
   dataNews.datasets[0].data.push(winRate, 100 - winRate);
   rateWinNews.value = parseInt(winRate.toFixed());
 }
+
+function getWeekOfMonth(date: Date): number {
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const firstDayWeekday = firstDayOfMonth.getDay();
+  const offset = firstDayWeekday == 0 ? 6 : firstDayWeekday - 1;
+  const dayOfMonth = date.getDate();
+  const index = offset + dayOfMonth;
+  return Math.floor(index / 7) + (index % 7 == 0 ? 0 : 1);
+}
+
+function updateDataLineChart() {
+  // eslint-disable-next-line no-debugger
+  //debugger;
+  const weeksInMonth = getWeeksInMonth(
+    new Date().getFullYear(),
+    new Date().getMonth()
+  );
+  const dataStandard = Array.from({ length: weeksInMonth }, () => 0);
+  console.log(operationList.value);
+  operationList.value.forEach((el) => {
+    // eslint-disable-next-line no-debugger
+    //debugger;
+    const week = getWeekOfMonth(new Date(el.data));
+    //console.log(week);
+    const sPoints = el.result == "Stop" ? el.stopPoints : 0;
+    const tPoints = el.result == "Target" ? el.targetPoints : 0;
+    dataStandard[week - 1] += tPoints - sPoints;
+  });
+
+  const dataNews = Array.from({ length: weeksInMonth }, () => 0);
+  console.log(operationListNews.value);
+  operationListNews.value.forEach((el) => {
+    // eslint-disable-next-line no-debugger
+    //debugger;
+    const week = getWeekOfMonth(new Date(el.data));
+    //console.log(week);
+    const sPoints = el.result == "Stop" ? el.stopPoints : 0;
+    const tPoints = el.result == "Target" ? el.targetPoints : 0;
+    dataNews[week - 1] += tPoints - sPoints;
+  });
+
+  dataLineChart.datasets[0].data = dataStandard;
+  dataLineChart.datasets[1].data = dataNews;
+  console.log((dataLineChart.datasets[1].data = dataNews));
+  //dataLineChart.update();
+}
+
+// function getTotalnetPointsStandardForChart() {
+//   const currentYear = new Date().getFullYear();
+//   const currentMonth = new Date().getMonth();
+//   const weeksInMonth = getWeeksInMonth(currentYear, currentMonth);
+//   const netPointsPerWeek = Array.from({ length: weeksInMonth }, () => 0);
+
+//   operationList.value.forEach((el) => {
+//     const weekOfMonth = getWeekOfMonth(new Date(el.data));
+//     if (weekOfMonth >= 1 && weekOfMonth <= weeksInMonth) {
+//       const netPoints = el.targetPoints - el.stopPoints;
+//       netPointsPerWeek[weekOfMonth - 1] += netPoints;
+//     }
+//   });
+//   console.log(netPointsPerWeek);
+//   return netPointsPerWeek;
+// }
 
 function getTotalnetPointsStandard() {
   let totalTargetPoints = 0;
@@ -230,40 +302,57 @@ function convertDate(dateString: string) {
   return [p[2], p[1], p[0]].join("-");
 }
 
-function riempiArray() {
-  const labels = [];
+// function populateLineChartLabels(year: number, month: number) {
+//   const date = new Date(year, month, 1);
+//   const monthName = date.toLocaleString("default", { month: "long" });
+//   const weeksInMonth = getWeeksInMonth(year, month);
+//   const labels = [];
+
+//   for (let i = 1; i <= weeksInMonth; i++) {
+//     labels.push(`${monthName} - settimana ${i}`);
+//   }
+
+//   return labels;
+// }
+
+function populateLineChartLabels() {
   const today = new Date();
-  const currentMonth = today.getMonth();
-  //const firstDayOfMonth = new Date(today.getFullYear(), currentMonth, 1);
-  const daysInMonth = new Date(
-    today.getFullYear(),
-    currentMonth + 1,
-    0
-  ).getDate();
+  const monthName = today.toLocaleString("default", { month: "long" });
+  const weeksInMonth = getWeeksInMonth(today.getFullYear(), today.getMonth());
+  const labels = [];
 
-  let weekStart = 1;
-  let weekEnd = 5;
-  let weekNum = 1;
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const currentDate = new Date(today.getFullYear(), currentMonth, day);
-    const dayOfWeek = currentDate.getDay();
-
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      if (day === 1) {
-        labels.push(`Marzo - settimana ${weekNum} ${weekStart}-${day + 2}`);
-      } else if (day === daysInMonth) {
-        labels.push(`Marzo - settimana ${weekNum} ${weekStart}-${day}`);
-      } else if (dayOfWeek === 1) {
-        labels.push(`Marzo - settimana ${weekNum} ${weekStart}-${weekEnd}`);
-        weekNum++;
-        weekStart = day;
-        weekEnd = day + 4;
-      }
-    }
+  for (let i = 1; i <= weeksInMonth; i++) {
+    labels.push(`${monthName} - settimana ${i}`);
   }
-  console.log(labels);
+
   return labels;
+}
+
+function getWeeksInMonth(year: number, month: number) {
+  // eslint-disable-next-line no-debugger
+  //debugger;
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  const firstDayOfWeek = firstDay.getDay();
+  const lastDayOfWeek = lastDay.getDay();
+
+  const daysInFirstWeek = 6 - firstDayOfWeek;
+  const daysInLastWeek = lastDayOfWeek === 0 ? 7 : lastDayOfWeek;
+
+  const daysInMonthWithoutFirstAndLastWeek =
+    daysInMonth - daysInFirstWeek - (daysInLastWeek - 1);
+  let weeksInMonth = Math.ceil(daysInMonthWithoutFirstAndLastWeek / 7) + 2;
+
+  if (daysInFirstWeek >= 4 && daysInFirstWeek < 7 && daysInMonth > 28) {
+    weeksInMonth--;
+  }
+
+  if (daysInLastWeek >= 4 && daysInLastWeek < 7 && daysInMonth > 28) {
+    weeksInMonth--;
+  }
+
+  return weeksInMonth;
 }
 
 function goToAddOperation() {
@@ -443,7 +532,9 @@ function goToDetailsNews(opId: number) {
           </div>
           <div class="row pt-5">
             <div class="col-12">
-              <Line v-if="isMountedLineChart" :data="dataLineChart"></Line>
+              <div class="chart-container">
+                <Line v-if="isMountedLineChart" :data="dataLineChart"></Line>
+              </div>
             </div>
           </div>
         </div>
@@ -688,5 +779,18 @@ function goToDetailsNews(opId: number) {
 .line-chart {
   width: 1000px !important;
   height: 350px !important;
+}
+.chart-container {
+  position: relative;
+  height: 0;
+  padding-bottom: 45%; /* impostare questa percentuale in base alle tue esigenze */
+  width: 100%;
+}
+.chart-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
 }
 </style>
