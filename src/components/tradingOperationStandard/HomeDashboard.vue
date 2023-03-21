@@ -604,73 +604,76 @@ function goToDetailsNews(opId: number) {
           <h5 v-if="!isLoading" class="card-title fw-light pb-2 pt-4">
             Ultima operazione news
           </h5>
-          <table
-            v-if="tableNewsVisibility && !isLoading"
-            class="table table-responsive align-middle"
-          >
-            <thead>
-              <tr>
-                <th scope="col">{{ tableHeader.id }}</th>
-                <th scope="col">{{ tableHeader.data }}</th>
-                <th scope="col">{{ tableHeader.news }}</th>
-                <th class="text-center" scope="col">
-                  {{ tableHeader.esitoOperazione }}
-                </th>
-                <th class="text-center" scope="col">
-                  {{ tableHeader.maxTargetReached }}
-                </th>
-                <th class="text-center" scope="col">
-                  {{ tableHeader.puntiDiTarget }}
-                </th>
-                <th class="text-center" scope="col">
-                  {{ tableHeader.puntiDiStop }}
-                </th>
-                <th class="text-center" scope="col">
-                  {{ tableHeader.rischioRendimento }}
-                </th>
-                <th scope="col">{{ tableHeader.detail }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="operation in lastOperationAddedNews"
-                :key="operation.id"
-              >
-                <th scope="row">{{ operation.id }}</th>
-                <td>
-                  {{ convertDate(operation.data) + " - " + operation.time }}
-                </td>
-                <td>
-                  <span v-for="(news, index) in operation.news" :key="index">
-                    {{ news.replace(/\[|\]/g, "") }}
-                  </span>
-                </td>
-                <td class="text-center">
-                  <i
-                    v-if="operation.result == 'Target'"
-                    class="bi bi-check-circle-fill fs-3 text-success"
-                  ></i>
-                  <i
-                    v-if="operation.result == 'Stop'"
-                    class="bi bi-x-circle-fill fs-3 text-danger"
-                  ></i>
-                </td>
-                <td class="text-center">{{ operation.maxTargetReached }}</td>
-                <td class="text-center">{{ operation.targetPoints }}</td>
-                <td class="text-center">{{ operation.stopPoints }}</td>
-                <td class="text-center">{{ operation.riskReturn }}</td>
-                <td>
-                  <button
-                    type="button"
-                    class="mx-1 btn btn-outline-success"
-                    @click="goToDetailsNews(operation.id)"
-                  >
-                    <i class="bi bi-arrow-right"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table
+              v-if="tableNewsVisibility && !isLoading"
+              class="table align-middle"
+            >
+              <thead>
+                <tr>
+                  <th scope="col">{{ tableHeader.id }}</th>
+                  <th scope="col">{{ tableHeader.data }}</th>
+                  <th scope="col">{{ tableHeader.news }}</th>
+                  <th class="text-center" scope="col">
+                    {{ tableHeader.esitoOperazione }}
+                  </th>
+                  <th class="text-center" scope="col">
+                    {{ tableHeader.maxTargetReached }}
+                  </th>
+                  <th class="text-center" scope="col">
+                    {{ tableHeader.puntiDiTarget }}
+                  </th>
+                  <th class="text-center" scope="col">
+                    {{ tableHeader.puntiDiStop }}
+                  </th>
+                  <th class="text-center" scope="col">
+                    {{ tableHeader.rischioRendimento }}
+                  </th>
+                  <th scope="col">{{ tableHeader.detail }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="operation in lastOperationAddedNews"
+                  :key="operation.id"
+                >
+                  <th scope="row">{{ operation.id }}</th>
+                  <td>
+                    {{ convertDate(operation.data) + " - " + operation.time }}
+                  </td>
+                  <td>
+                    <span v-for="(news, index) in operation.news" :key="index">
+                      {{ news.replace(/\[|\]/g, "") }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <i
+                      v-if="operation.result == 'Target'"
+                      class="bi bi-check-circle-fill fs-3 text-success"
+                    ></i>
+                    <i
+                      v-if="operation.result == 'Stop'"
+                      class="bi bi-x-circle-fill fs-3 text-danger"
+                    ></i>
+                  </td>
+                  <td class="text-center">{{ operation.maxTargetReached }}</td>
+                  <td class="text-center">{{ operation.targetPoints }}</td>
+                  <td class="text-center">{{ operation.stopPoints }}</td>
+                  <td class="text-center">{{ operation.riskReturn }}</td>
+                  <td>
+                    <button
+                      type="button"
+                      class="mx-1 btn btn-outline-success"
+                      @click="goToDetailsNews(operation.id)"
+                    >
+                      <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
           <div
             v-if="!isLoading && !tableNewsVisibility"
             class="alert alert-primary d-flex align-items-center"
