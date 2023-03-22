@@ -482,8 +482,11 @@ function goToDetailsNews(opId: number) {
         <div class="card-body pt-5">
           <h2 class="card-title">Punti netti</h2>
           <p class="card-text">
-            Questo valore indica la differenza tra i punti di target ed i punti
-            di stop.
+            Questi valori indicano la differenza tra i punti di target ed i
+            punti di stop delle operazioni STANDARD e NEWS all-time. Se viene
+            selezionato il mese si può visualizzare l'andamento dei punti netti
+            durante le settimane di quest'ultimo, altrimenti si visualizzerà
+            l'andamento durante le settimane del mese corrente.
           </p>
           <div class="row">
             <h1 class="col-6 text-warning text-center pt-5">
