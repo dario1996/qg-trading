@@ -31,7 +31,7 @@ function goToRegister() {
                 class="bi bi-journal-text bi-2x me-3 text-primary"
                 style="font-size: 50px"
               ></i>
-              <span class="h1 fw-bold mb-0">Trading Diary</span>
+              <span class="h1 fw-bold mb-0">Trading Diary - Login</span>
             </div>
 
             <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px">

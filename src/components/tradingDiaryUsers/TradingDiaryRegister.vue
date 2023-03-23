@@ -1,7 +1,63 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { useRouter } from "vue-router";
+import UserService from "@/services/UsersService";
 
 const router = useRouter();
+
+const userName = ref("");
+const userEmail = ref("");
+const userPassword = ref("");
+const alertSaveSucces = ref(false);
+const alertEmptyField = ref(false);
+const errorWebApi = ref(false);
+const errorWebApiMessage = ref("");
+const isLoading = ref(false);
+
+async function saveOperation() {
+  const isEmpty =
+    userName.value === "" ||
+    userEmail.value === "" ||
+    userPassword.value === "" 
+  if (isEmpty) {
+    alertEmptyField.value = true;
+    return;
+  }
+
+  const saveData = {
+    name: userName.value,
+    email: userEmail.value,
+    password: userPassword.value,
+  };
+
+  isLoading.value = true;
+  alertSaveSucces.value = false;
+  errorWebApi.value = false;
+
+  try {
+    await UserService.addUser(saveData);
+    alertSaveSucces.value = true;
+    emptyField();
+  } catch (error) {
+    errorWebApi.value = true;
+    errorWebApiMessage.value =
+      "Errore Generico: il server non risponde, contattare supporto.";
+  } finally {
+    isLoading.value = false;
+    alertEmptyField.value = false;
+  }
+}
+
+function emptyField() {
+  const fields = [
+    userName,
+    userEmail,
+    userPassword,
+  ];
+  fields.forEach((field) => {
+    field.value = "";
+  });
+}
 // eslint-disable-next-line no-unused-vars
 function goToDashboard() {
   router.push({
@@ -22,24 +78,38 @@ function goToDashboard() {
         </div>
         <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
           <form>
-            <div class="d-flex align-items-bottom mb-3 pb-1">
+            <div class="d-flex align-items-center mb-3 pb-1">
               <i
                 class="bi bi-person-plus-fill bi-2x me-3 text-primary"
                 style="font-size: 50px"
               ></i>
-              <span class="h1 fw-bold mb-0">Trading Diary</span>
+              <span class="h1 fw-bold mb-0">Trading Diary - Sign up</span>
             </div>
 
             <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px">
-              Sign into your account
+              Register your account
             </h5>
+
+            <!-- Name input -->
+            <div class="form-outline mb-4">
+              <input
+                type="text"
+                id="form3Example4"
+                class="form-control form-control-lg"
+                placeholder="Your Name"
+                v-model="userName"
+              />
+              <!-- <label class="form-label" for="form3Example4">Password</label> -->
+            </div>
+
             <!-- Email input -->
             <div class="form-outline mb-4">
               <input
                 type="email"
                 id="form3Example3"
                 class="form-control form-control-lg"
-                placeholder="Enter a valid email address"
+                placeholder="Your Email"
+                v-model="userEmail"
               />
               <!-- <label class="form-label" for="form3Example3"
                 >Email address</label
@@ -47,30 +117,15 @@ function goToDashboard() {
             </div>
 
             <!-- Password input -->
-            <div class="form-outline mb-3">
+            <div class="form-outline mb-4">
               <input
                 type="password"
                 id="form3Example4"
                 class="form-control form-control-lg"
-                placeholder="Enter password"
+                placeholder="Password"
+                v-model="userPassword"
               />
               <!-- <label class="form-label" for="form3Example4">Password</label> -->
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center">
-              <!-- Checkbox -->
-              <div class="form-check mb-0">
-                <input
-                  class="form-check-input me-2"
-                  type="checkbox"
-                  value=""
-                  id="form2Example3"
-                />
-                <label class="form-check-label" for="form2Example3">
-                  Remember me
-                </label>
-              </div>
-              <a href="#!" class="text-body">Forgot password?</a>
             </div>
 
             <div class="text-center text-lg mt-4 pt-2">
@@ -78,9 +133,9 @@ function goToDashboard() {
                 type="button"
                 class="btn btn-primary btn-lg"
                 style="padding-left: 2.5rem; padding-right: 2.5rem"
-                @click="goToDashboard"
+                @click="saveOperation"
               >
-                Login
+                Register
               </button>
             </div>
           </form>
